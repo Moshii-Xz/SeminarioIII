@@ -79,7 +79,7 @@ func (g *MockGateway) ProcessPayment(ctx context.Context, req PaymentGatewayRequ
 		req.Currency = "USD"
 	}
 
-	transactionID := fmt.Sprintf("mock_txn_%d_%d", req.OrderID, req.Amount)
+	transactionID := fmt.Sprintf("mock_txn_%d_%f", req.OrderID, req.Amount)
 
 	return &PaymentGatewayResponse{
 		TransactionID: transactionID,

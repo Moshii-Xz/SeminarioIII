@@ -242,3 +242,31 @@ func (r *Repository) GetPendingPaymentsReport() ([]PendingPayment, error) {
 
 	return report, nil
 }
+
+type ExpiringProduct struct {
+	ProductID      uint      `json:"product_id"`
+	ProductName    string    `json:"product_name"`
+	ExpirationDate time.Time `json:"expiration_date"`
+	Stock          int       `json:"stock"`
+}
+
+func (r *Repository) GetExpiringProducts(days int) ([]ExpiringProduct, error) {
+	var products []ExpiringProduct
+	targetDate := time.Now().AddDate(0, 0, days)
+
+	query := `
+		SELECT
+			id_producto AS product_id,
+			nombre AS product_name,
+			fecha_vencimiento AS expiration_date,
+			stock
+		FROM producto
+		WHERE fecha_vencimiento <= ? AND fecha_vencimiento >= ?
+		ORDER BY fecha_vencimiento ASC`
+
+	if err := r.db.Raw(query, targetDate, time.Now()).Scan(&products).Error; err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

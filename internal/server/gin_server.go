@@ -14,6 +14,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mordmora/expirapp/internal/modules/catalog"
+	"github.com/mordmora/expirapp/internal/modules/orders"
+	"github.com/mordmora/expirapp/internal/modules/payments"
+	"github.com/mordmora/expirapp/internal/modules/reports"
+	"github.com/mordmora/expirapp/internal/modules/reviews"
+	"github.com/mordmora/expirapp/internal/modules/users"
 	"gorm.io/gorm"
 )
 
@@ -77,6 +83,7 @@ func (s *Server) setupMiddlewares() {
 		# solo para depurar
 	*/
 	s.engine.Use(gin.Logger())
+	s.engine.Use(corsMiddleware())
 }
 
 /*
@@ -114,6 +121,104 @@ func (s *Server) setupRouter() {
 				"status":  "running",
 			})
 		})
+
+		// Initialize Modules
+
+		// Users
+		usersRepo := users.NewRepository(s.db)
+		usersService := users.NewService(usersRepo)
+		usersHandler := users.NewHandler(usersService)
+
+		usersGroup := v1.Group("/users")
+		{
+			usersGroup.POST("/", usersHandler.Create)
+			usersGroup.GET("/:id", usersHandler.GetByID)
+			usersGroup.PUT("/:id", usersHandler.Update)
+			usersGroup.DELETE("/:id", usersHandler.Delete)
+			usersGroup.GET("/", usersHandler.List)
+			usersGroup.POST("/login", usersHandler.Login)
+		}
+
+		// Catalog
+		catalogRepo := catalog.NewRepository(s.db)
+		catalogService := catalog.NewService(catalogRepo)
+		catalogHandler := catalog.NewHandler(catalogService)
+
+		catalogGroup := v1.Group("/products")
+		{
+			catalogGroup.POST("/", catalogHandler.Create)
+			catalogGroup.GET("/:id", catalogHandler.GetByID)
+			catalogGroup.PUT("/:id", catalogHandler.Update)
+			catalogGroup.DELETE("/:id", catalogHandler.Delete)
+			catalogGroup.GET("/", catalogHandler.List)
+		}
+
+		// Orders
+		ordersRepo := orders.NewRepository(s.db)
+		ordersService := orders.NewService(ordersRepo, catalogRepo)
+		ordersHandler := orders.NewHandler(ordersService)
+
+		ordersGroup := v1.Group("/orders")
+		{
+			ordersGroup.POST("/", ordersHandler.Create)
+			ordersGroup.GET("/:id", ordersHandler.GetByID)
+			ordersGroup.PUT("/:id", ordersHandler.Update)
+			ordersGroup.DELETE("/:id", ordersHandler.Delete)
+			ordersGroup.GET("/", ordersHandler.List)
+			ordersGroup.POST("/:id/items", ordersHandler.AddDetail)
+			ordersGroup.PUT("/:id/items/:itemId", ordersHandler.UpdateDetail)
+			ordersGroup.DELETE("/:id/items/:itemId", ordersHandler.RemoveDetail)
+		}
+
+		// Payments
+		paymentsRepo := payments.NewRepository(s.db)
+		paymentsService := payments.NewService(paymentsRepo, ordersRepo)
+		paymentsHandler := payments.NewHandler(paymentsService)
+
+		paymentsGroup := v1.Group("/payments")
+		{
+			paymentsGroup.POST("/", paymentsHandler.Create)
+			paymentsGroup.GET("/:id", paymentsHandler.GetByID)
+			paymentsGroup.PUT("/:id", paymentsHandler.Update)
+			paymentsGroup.DELETE("/:id", paymentsHandler.Delete)
+			paymentsGroup.GET("/", paymentsHandler.List)
+			paymentsGroup.GET("/order/:orderId", paymentsHandler.GetByOrder)
+			paymentsGroup.GET("/order/:orderId/status", paymentsHandler.GetPaymentStatusByOrder)
+
+			// Payment Methods
+			paymentsGroup.POST("/methods", paymentsHandler.CreatePaymentMethod)
+			paymentsGroup.GET("/methods", paymentsHandler.ListPaymentMethods)
+			paymentsGroup.GET("/methods/:id", paymentsHandler.GetPaymentMethod)
+			paymentsGroup.PUT("/methods/:id", paymentsHandler.UpdatePaymentMethod)
+			paymentsGroup.DELETE("/methods/:id", paymentsHandler.DeletePaymentMethod)
+		}
+
+		// Reviews
+		reviewsRepo := reviews.NewRepository(s.db)
+		reviewsService := reviews.NewService(reviewsRepo)
+		reviewsHandler := reviews.NewHandler(reviewsService)
+
+		reviewsGroup := v1.Group("/reviews")
+		{
+			reviewsGroup.POST("/", reviewsHandler.Create)
+			reviewsGroup.GET("/:id", reviewsHandler.GetByID)
+			reviewsGroup.PUT("/:id", reviewsHandler.Update)
+			reviewsGroup.DELETE("/:id", reviewsHandler.Delete)
+			reviewsGroup.GET("/", reviewsHandler.List)
+			reviewsGroup.GET("/product/:productId", reviewsHandler.ListByProduct)
+		}
+
+		// Reports
+		reportsRepo := reports.NewRepository(s.db)
+		reportsService := reports.NewService(reportsRepo)
+		reportsHandler := reports.NewHandler(reportsService)
+
+		reportsGroup := v1.Group("/reports")
+		{
+			reportsGroup.GET("/sales", reportsHandler.GetSalesReport)
+			reportsGroup.GET("/stock", reportsHandler.GetStockReport)
+			reportsGroup.GET("/expiring", reportsHandler.GetExpiringProductsReport)
+		}
 	}
 
 }

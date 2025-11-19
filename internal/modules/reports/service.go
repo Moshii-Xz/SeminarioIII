@@ -137,3 +137,31 @@ func (s *Service) GetPendingPayments() ([]PendingPaymentResponse, error) {
 	return resp, nil
 }
 
+type ExpiringProductResponse struct {
+	ProductID      uint      `json:"product_id"`
+	ProductName    string    `json:"product_name"`
+	ExpirationDate time.Time `json:"expiration_date"`
+	Stock          int       `json:"stock"`
+}
+
+func (s *Service) GetExpiringProductsReport(days int) ([]ExpiringProductResponse, error) {
+	if days <= 0 {
+		days = 30 // Default to 30 days
+	}
+
+	products, err := s.repo.GetExpiringProducts(days)
+	if err != nil {
+		return nil, fmt.Errorf("error getting expiring products: %w", err)
+	}
+
+	resp := make([]ExpiringProductResponse, len(products))
+	for i, p := range products {
+		resp[i] = ExpiringProductResponse{
+			ProductID:      p.ProductID,
+			ProductName:    p.ProductName,
+			ExpirationDate: p.ExpirationDate,
+			Stock:          p.Stock,
+		}
+	}
+	return resp, nil
+}

@@ -40,3 +40,13 @@ type UserListResponse struct {
 	Page  int            `json:"pagina"`
 	Limit int            `json:"limite"`
 }
+
+type LoginRequest struct {
+	Email    string `json:"correo" binding:"required,email"`
+	Password string `json:"contrasena" binding:"required"`
+}
+
+type LoginResponse struct {
+	Token string       `json:"token"`
+	User  UserResponse `json:"usuario"`
+}

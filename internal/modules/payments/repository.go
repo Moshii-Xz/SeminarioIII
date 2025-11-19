@@ -74,6 +74,7 @@ func (r *Repository) CountByOrderID(orderID uint) (int64, error) {
 }
 
 // PaymentMethod methods
+
 func (r *Repository) CreatePaymentMethod(method *domain.PaymentMethod) error {
 	return r.db.Create(method).Error
 }
@@ -100,14 +101,19 @@ func (r *Repository) FindPaymentMethodByName(name string) (*domain.PaymentMethod
 		}
 		return nil, err
 	}
-
 	return &method, nil
 }
 
-func (r *Repository) ListPaymentMethods() ([]domain.PaymentMethod, error) {
+func (r *Repository) ListPaymentMethods() ([]domain.PaymentMethod, int64, error) {
 	var methods []domain.PaymentMethod
+	var total int64
+
+	if err := r.db.Model(&domain.PaymentMethod{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
 	err := r.db.Order("nombre ASC").Find(&methods).Error
-	return methods, err
+	return methods, total, err
 }
 
 func (r *Repository) UpdatePaymentMethod(method *domain.PaymentMethod) error {

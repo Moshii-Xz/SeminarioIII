@@ -3,6 +3,7 @@ package reports
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,151 +16,75 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) GetSalesSummary(c *gin.Context) {
-	var req SalesSummaryRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid query params",
-			"message": err.Error(),
-		})
-		return
+func (h *Handler) GetSalesReport(c *gin.Context) {
+	startDateStr := c.Query("start_date")
+	endDateStr := c.Query("end_date")
+
+	var startDate, endDate time.Time
+	var err error
+
+	if startDateStr == "" {
+		startDate = time.Now().AddDate(0, -1, 0) // Last month
+	} else {
+		startDate, err = time.Parse("2006-01-02", startDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start_date format (YYYY-MM-DD)"})
+			return
+		}
+	}
+
+	if endDateStr == "" {
+		endDate = time.Now()
+	} else {
+		endDate, err = time.Parse("2006-01-02", endDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end_date format (YYYY-MM-DD)"})
+			return
+		}
+	}
+
+	req := SalesSummaryRequest{
+		StartDate: startDate,
+		EndDate:   endDate,
 	}
 
 	summary, err := h.service.GetSalesSummary(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "could not fetch sales summary",
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": summary})
 }
 
-func (h *Handler) GetTopProducts(c *gin.Context) {
-	var req ReportFilterRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid query params",
-			"message": err.Error(),
-		})
-		return
-	}
-	if req.Limit == 0 {
-		req.Limit = 5
-	}
-
-	products, err := h.service.GetTopProducts(req)
+func (h *Handler) GetStockReport(c *gin.Context) {
+	thresholdStr := c.DefaultQuery("threshold", "10")
+	threshold, err := strconv.Atoi(thresholdStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch top products",
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid threshold"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": products})
+	report, err := h.service.GetLowStock(threshold)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": report})
 }
 
-func (h *Handler) GetLowStock(c *gin.Context) {
-	threshold, err := strconv.Atoi(c.DefaultQuery("umbral", "10"))
+func (h *Handler) GetExpiringProductsReport(c *gin.Context) {
+	daysStr := c.DefaultQuery("days", "30")
+	days, err := strconv.Atoi(daysStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid threshold",
-			"message": "umbral must be a number",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid days"})
 		return
 	}
 
-	products, err := h.service.GetLowStock(threshold)
+	report, err := h.service.GetExpiringProductsReport(days)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch low stock products",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": products})
-}
-
-func (h *Handler) GetDailySales(c *gin.Context) {
-	var req SalesSummaryRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid query params",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	sales, err := h.service.GetDailySales(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch daily sales",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": sales})
-}
-
-func (h *Handler) GetTopCustomers(c *gin.Context) {
-	var req ReportFilterRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid query params",
-			"message": err.Error(),
-		})
-		return
-	}
-	if req.Limit == 0 {
-		req.Limit = 5
-	}
-
-	customers, err := h.service.GetTopCustomers(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch top customers",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": customers})
-}
-
-func (h *Handler) GetPaymentMethodSummary(c *gin.Context) {
-	var req SalesSummaryRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "invalid query params",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	summary, err := h.service.GetPaymentMethodSummary(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch payment method summary",
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": summary})
-}
-
-func (h *Handler) GetPendingPayments(c *gin.Context) {
-	report, err := h.service.GetPendingPayments()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "could not fetch pending payments",
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

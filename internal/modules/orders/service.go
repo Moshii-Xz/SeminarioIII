@@ -22,40 +22,40 @@ func NewService(repo *Repository, catalogRepo *catalogRepo.Repository) *Service 
 }
 
 func (s *Service) Create(req CreateOrderRequest) (*domain.Order, error) {
-	orderItems := make([]domain.OrderItem, len(req.Items))
-	
+	orderDetails := make([]domain.OrderDetail, len(req.Items))
+
 	for i, itemReq := range req.Items {
-		product, err := s.catalogRepo.FindByID(itemReq.IDProducto)
+		product, err := s.catalogRepo.FindByID(itemReq.ProductID)
 		if err != nil {
-			return nil, fmt.Errorf("producto con id %d no encontrado", itemReq.IDProducto)
+			return nil, fmt.Errorf("product with id %d not found", itemReq.ProductID)
 		}
 
-		if product.Stock < itemReq.Cantidad {
-			return nil, fmt.Errorf("stock insuficiente para el producto %s (id: %d). Stock disponible: %d, solicitado: %d", 
-				product.Nombre, itemReq.IDProducto, product.Stock, itemReq.Cantidad)
+		if product.Stock < itemReq.Quantity {
+			return nil, fmt.Errorf("insufficient stock for product %s (id: %d). Available: %d, Requested: %d",
+				product.Name, itemReq.ProductID, product.Stock, itemReq.Quantity)
 		}
 
-		orderItems[i] = domain.OrderItem{
-			IDProducto:     itemReq.IDProducto,
-			Cantidad:       itemReq.Cantidad,
-			PrecioUnitario: itemReq.PrecioUnitario,
+		orderDetails[i] = domain.OrderDetail{
+			ProductID: itemReq.ProductID,
+			Quantity:  itemReq.Quantity,
+			UnitPrice: itemReq.UnitPrice,
 		}
 	}
 
 	order := &domain.Order{
-		IDCliente:   req.IDCliente,
-		IDVendedor:  req.IDVendedor,
-		FechaCompra: time.Now(),
-		Items:       orderItems,
+		ClientID: req.ClientID,
+		SellerID: req.SellerID,
+		Date:     time.Now(),
+		Details:  orderDetails,
 	}
 
-	if err := s.repo.CreateWithItems(order, orderItems); err != nil {
+	if err := s.repo.CreateWithItems(order, orderDetails); err != nil {
 		return nil, fmt.Errorf("error creating order: %w", err)
 	}
 
-	for _, item := range orderItems {
-		if err := s.catalogRepo.UpdateStock(item.IDProducto, -item.Cantidad); err != nil {
-			return nil, fmt.Errorf("error updating stock for product %d: %w", item.IDProducto, err)
+	for _, item := range orderDetails {
+		if err := s.catalogRepo.UpdateStock(item.ProductID, -item.Quantity); err != nil {
+			return nil, fmt.Errorf("error updating stock for product %d: %w", item.ProductID, err)
 		}
 	}
 
@@ -72,8 +72,8 @@ func (s *Service) Update(id uint, req UpdateOrderRequest) (*domain.Order, error)
 		return nil, err
 	}
 
-	if req.IDVendedor != nil {
-		order.IDVendedor = req.IDVendedor
+	if req.SellerID != nil {
+		order.SellerID = req.SellerID
 	}
 
 	if err := s.repo.Update(order); err != nil {
@@ -89,9 +89,9 @@ func (s *Service) Delete(id uint) error {
 		return err
 	}
 
-	for _, item := range order.Items {
-		if err := s.catalogRepo.UpdateStock(item.IDProducto, item.Cantidad); err != nil {
-			fmt.Printf("warning: error restoring stock for product %d: %v\n", item.IDProducto, err)
+	for _, item := range order.Details {
+		if err := s.catalogRepo.UpdateStock(item.ProductID, item.Quantity); err != nil {
+			fmt.Printf("warning: error restoring stock for product %d: %v\n", item.ProductID, err)
 		}
 	}
 
@@ -102,10 +102,9 @@ func (s *Service) List(page, limit int) ([]domain.Order, int64, error) {
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 100 {
+	if limit < 1 {
 		limit = 10
 	}
-
 	offset := (page - 1) * limit
 	return s.repo.List(limit, offset)
 }
@@ -114,10 +113,9 @@ func (s *Service) ListByClient(clientID uint, page, limit int) ([]domain.Order, 
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 100 {
+	if limit < 1 {
 		limit = 10
 	}
-
 	offset := (page - 1) * limit
 	return s.repo.FindByClientID(clientID, limit, offset)
 }
@@ -126,87 +124,89 @@ func (s *Service) ListBySeller(sellerID uint, page, limit int) ([]domain.Order, 
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 100 {
+	if limit < 1 {
 		limit = 10
 	}
-
 	offset := (page - 1) * limit
 	return s.repo.FindBySellerID(sellerID, limit, offset)
 }
 
-func (s *Service) AddOrderItem(orderID uint, req AddOrderItemRequest) (*domain.OrderItem, error) {
-	order, err := s.repo.FindByID(orderID)
+func (s *Service) AddOrderItem(orderID uint, req AddOrderItemRequest) (*domain.OrderDetail, error) {
+	_, err := s.repo.FindByID(orderID)
 	if err != nil {
 		return nil, err
 	}
 
-	product, err := s.catalogRepo.FindByID(req.IDProducto)
+	product, err := s.catalogRepo.FindByID(req.ProductID)
 	if err != nil {
-		return nil, fmt.Errorf("producto con id %d no encontrado", req.IDProducto)
+		return nil, fmt.Errorf("product with id %d not found", req.ProductID)
 	}
 
-	if product.Stock < req.Cantidad {
-		return nil, fmt.Errorf("stock insuficiente para el producto %s. Stock disponible: %d, solicitado: %d", 
-			product.Nombre, product.Stock, req.Cantidad)
+	if product.Stock < req.Quantity {
+		return nil, fmt.Errorf("insufficient stock for product %s. Available: %d, Requested: %d",
+			product.Name, product.Stock, req.Quantity)
 	}
 
-	item := &domain.OrderItem{
-		IDCompra:       orderID,
-		IDProducto:     req.IDProducto,
-		Cantidad:       req.Cantidad,
-		PrecioUnitario: req.PrecioUnitario,
+	item := &domain.OrderDetail{
+		OrderID:   orderID,
+		ProductID: req.ProductID,
+		Quantity:  req.Quantity,
+		UnitPrice: req.UnitPrice,
 	}
 
-	if err := s.repo.CreateOrderItem(item); err != nil {
+	if err := s.repo.CreateDetail(item); err != nil {
 		return nil, fmt.Errorf("error adding item to order: %w", err)
 	}
 
-	if err := s.catalogRepo.UpdateStock(req.IDProducto, -req.Cantidad); err != nil {
+	if err := s.catalogRepo.UpdateStock(req.ProductID, -req.Quantity); err != nil {
 		return nil, fmt.Errorf("error updating stock: %w", err)
 	}
+
+	// Verify order exists to ensure consistency
+	_, _ = s.repo.FindByID(orderID)
 
 	return item, nil
 }
 
-func (s *Service) UpdateOrderItem(orderID, itemID uint, req UpdateOrderItemRequest) (*domain.OrderItem, error) {
-	item, err := s.repo.FindOrderItemByID(itemID)
+func (s *Service) UpdateOrderItem(orderID, itemID uint, req UpdateOrderItemRequest) (*domain.OrderDetail, error) {
+	item, err := s.repo.FindDetailByID(itemID)
 	if err != nil {
 		return nil, err
 	}
 
-	if item.IDCompra != orderID {
-		return nil, errors.New("el item no pertenece a esta orden")
+	if item.OrderID != orderID {
+		return nil, errors.New("item does not belong to this order")
 	}
 
-	if req.Cantidad > 0 {
-		product, err := s.catalogRepo.FindByID(item.IDProducto)
+	if req.Quantity > 0 {
+		product, err := s.catalogRepo.FindByID(item.ProductID)
 		if err != nil {
-			return nil, fmt.Errorf("producto no encontrado: %w", err)
+			return nil, fmt.Errorf("product not found: %w", err)
 		}
 
-		stockDifference := req.Cantidad - item.Cantidad
+		stockDifference := req.Quantity - item.Quantity
 		if stockDifference > 0 {
 			if product.Stock < stockDifference {
-				return nil, fmt.Errorf("stock insuficiente. Stock disponible: %d, necesario: %d", 
+				return nil, fmt.Errorf("insufficient stock. Available: %d, Needed: %d",
 					product.Stock, stockDifference)
 			}
-			if err := s.catalogRepo.UpdateStock(item.IDProducto, -stockDifference); err != nil {
+			if err := s.catalogRepo.UpdateStock(item.ProductID, -stockDifference); err != nil {
 				return nil, fmt.Errorf("error updating stock: %w", err)
 			}
 		} else if stockDifference < 0 {
-			if err := s.catalogRepo.UpdateStock(item.IDProducto, -stockDifference); err != nil {
+			if err := s.catalogRepo.UpdateStock(item.ProductID, -stockDifference); err != nil {
 				return nil, fmt.Errorf("error updating stock: %w", err)
 			}
 		}
 
-		item.Cantidad = req.Cantidad
+		item.Quantity = req.Quantity
 	}
 
-	if req.PrecioUnitario > 0 {
-		item.PrecioUnitario = req.PrecioUnitario
+	if req.UnitPrice > 0 {
+		item.UnitPrice = req.UnitPrice
 	}
 
-	if err := s.repo.UpdateOrderItem(item); err != nil {
+	if err := s.repo.UpdateDetail(item); err != nil {
 		return nil, fmt.Errorf("error updating order item: %w", err)
 	}
 
@@ -214,47 +214,47 @@ func (s *Service) UpdateOrderItem(orderID, itemID uint, req UpdateOrderItemReque
 }
 
 func (s *Service) DeleteOrderItem(orderID, itemID uint) error {
-	item, err := s.repo.FindOrderItemByID(itemID)
+	item, err := s.repo.FindDetailByID(itemID)
 	if err != nil {
 		return err
 	}
 
-	if item.IDCompra != orderID {
-		return errors.New("el item no pertenece a esta orden")
+	if item.OrderID != orderID {
+		return errors.New("item does not belong to this order")
 	}
 
-	if err := s.catalogRepo.UpdateStock(item.IDProducto, item.Cantidad); err != nil {
+	if err := s.catalogRepo.UpdateStock(item.ProductID, item.Quantity); err != nil {
 		return fmt.Errorf("error restoring stock: %w", err)
 	}
 
-	return s.repo.DeleteOrderItem(itemID)
+	return s.repo.DeleteDetail(itemID)
 }
 
-func (s *Service) ToOrderItemResponse(item *domain.OrderItem) OrderItemResponse {
+func (s *Service) ToOrderItemResponse(item *domain.OrderDetail) OrderItemResponse {
 	return OrderItemResponse{
-		IDDetalle:      item.ID,
-		IDProducto:     item.IDProducto,
-		Cantidad:       item.Cantidad,
-		PrecioUnitario: item.PrecioUnitario,
-		Subtotal:       float64(item.Cantidad) * item.PrecioUnitario,
+		ID:        item.ID,
+		ProductID: item.ProductID,
+		Quantity:  item.Quantity,
+		UnitPrice: item.UnitPrice,
+		Subtotal:  float64(item.Quantity) * item.UnitPrice,
 	}
 }
 
-func (s *Service) ToOrderResponse(order *domain.Order) OrderResponse {
-	items := make([]OrderItemResponse, len(order.Items))
+func (s *Service) ToResponse(order *domain.Order) OrderResponse {
+	items := make([]OrderItemResponse, len(order.Details))
 	var total float64
 
-	for i, item := range order.Items {
+	for i, item := range order.Details {
 		items[i] = s.ToOrderItemResponse(&item)
 		total += items[i].Subtotal
 	}
 
 	return OrderResponse{
-		IDCompra:    order.ID,
-		IDCliente:   order.IDCliente,
-		IDVendedor:  order.IDVendedor,
-		FechaCompra: order.FechaCompra,
-		Items:       items,
-		Total:       total,
+		ID:       order.ID,
+		ClientID: order.ClientID,
+		SellerID: order.SellerID,
+		Date:     order.Date,
+		Items:    items,
+		Total:    total,
 	}
 }

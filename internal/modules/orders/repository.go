@@ -19,14 +19,14 @@ func (r *Repository) Create(order *domain.Order) error {
 	return r.db.Create(order).Error
 }
 
-func (r *Repository) CreateWithItems(order *domain.Order, items []domain.OrderItem) error {
+func (r *Repository) CreateWithItems(order *domain.Order, items []domain.OrderDetail) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(order).Error; err != nil {
 			return err
 		}
 
 		for i := range items {
-			items[i].IDCompra = order.ID
+			items[i].OrderID = order.ID
 			if err := tx.Create(&items[i]).Error; err != nil {
 				return err
 			}
@@ -38,20 +38,7 @@ func (r *Repository) CreateWithItems(order *domain.Order, items []domain.OrderIt
 
 func (r *Repository) FindByID(id uint) (*domain.Order, error) {
 	var order domain.Order
-	err := r.db.Preload("Items").Preload("Items.Product").First(&order, id).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("order not found")
-		}
-		return nil, err
-	}
-
-	return &order, nil
-}
-
-func (r *Repository) FindByIDWithItems(id uint) (*domain.Order, error) {
-	var order domain.Order
-	err := r.db.Preload("Items").Preload("Items.Product").First(&order, id).Error
+	err := r.db.Preload("Details").Preload("Details.Product").First(&order, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("order not found")
@@ -78,7 +65,7 @@ func (r *Repository) List(limit, offset int) ([]domain.Order, int64, error) {
 		return nil, 0, err
 	}
 
-	err := r.db.Preload("Items").Preload("Items.Product").Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
+	err := r.db.Preload("Details").Preload("Details.Product").Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
 	return orders, total, err
 }
 
@@ -90,7 +77,7 @@ func (r *Repository) FindByClientID(clientID uint, limit, offset int) ([]domain.
 		return nil, 0, err
 	}
 
-	err := r.db.Preload("Items").Preload("Items.Product").Where("id_cliente = ?", clientID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
+	err := r.db.Preload("Details").Preload("Details.Product").Where("id_cliente = ?", clientID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
 	return orders, total, err
 }
 
@@ -102,20 +89,20 @@ func (r *Repository) FindBySellerID(sellerID uint, limit, offset int) ([]domain.
 		return nil, 0, err
 	}
 
-	err := r.db.Preload("Items").Preload("Items.Product").Where("id_vendedor = ?", sellerID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
+	err := r.db.Preload("Details").Preload("Details.Product").Where("id_vendedor = ?", sellerID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
 	return orders, total, err
 }
 
-func (r *Repository) CreateOrderItem(item *domain.OrderItem) error {
+func (r *Repository) CreateDetail(item *domain.OrderDetail) error {
 	return r.db.Create(item).Error
 }
 
-func (r *Repository) FindOrderItemByID(id uint) (*domain.OrderItem, error) {
-	var item domain.OrderItem
+func (r *Repository) FindDetailByID(id uint) (*domain.OrderDetail, error) {
+	var item domain.OrderDetail
 	err := r.db.Preload("Product").First(&item, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("order item not found")
+			return nil, errors.New("order detail not found")
 		}
 		return nil, err
 	}
@@ -123,20 +110,10 @@ func (r *Repository) FindOrderItemByID(id uint) (*domain.OrderItem, error) {
 	return &item, nil
 }
 
-func (r *Repository) FindOrderItemsByOrderID(orderID uint) ([]domain.OrderItem, error) {
-	var items []domain.OrderItem
-	err := r.db.Preload("Product").Where("id_compra = ?", orderID).Find(&items).Error
-	return items, err
-}
-
-func (r *Repository) UpdateOrderItem(item *domain.OrderItem) error {
+func (r *Repository) UpdateDetail(item *domain.OrderDetail) error {
 	return r.db.Save(item).Error
 }
 
-func (r *Repository) DeleteOrderItem(id uint) error {
-	return r.db.Delete(&domain.OrderItem{}, id).Error
-}
-
-func (r *Repository) DeleteOrderItemsByOrderID(orderID uint) error {
-	return r.db.Where("id_compra = ?", orderID).Delete(&domain.OrderItem{}).Error
+func (r *Repository) DeleteDetail(id uint) error {
+	return r.db.Delete(&domain.OrderDetail{}, id).Error
 }

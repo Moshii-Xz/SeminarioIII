@@ -3,45 +3,45 @@ package payments
 import "time"
 
 type CreatePaymentRequest struct {
-	IDCompra     uint    `json:"id_compra" binding:"required"`
-	IDMetodoPago *uint   `json:"id_metodo_pago" binding:"omitempty"`
-	Monto        float64 `json:"monto" binding:"required,min=0"`
+	OrderID         uint    `json:"order_id" binding:"required"`
+	PaymentMethodID *uint   `json:"payment_method_id" binding:"omitempty"`
+	Amount          float64 `json:"amount" binding:"required,min=0"`
 }
 
 type UpdatePaymentRequest struct {
-	IDMetodoPago *uint   `json:"id_metodo_pago" binding:"omitempty"`
-	Monto        float64 `json:"monto" binding:"omitempty,min=0"`
+	PaymentMethodID *uint   `json:"payment_method_id" binding:"omitempty"`
+	Amount          float64 `json:"amount" binding:"omitempty,min=0"`
 }
 
 type PaymentResponse struct {
-	IDPago       uint      `json:"id_pago"`
-	IDCompra     uint      `json:"id_compra"`
-	IDMetodoPago *uint     `json:"id_metodo_pago,omitempty"`
-	Monto        float64   `json:"monto"`
-	FechaPago    time.Time `json:"fecha_pago"`
+	ID              uint      `json:"id"`
+	OrderID         uint      `json:"order_id"`
+	PaymentMethodID *uint     `json:"payment_method_id,omitempty"`
+	Amount          float64   `json:"amount"`
+	Date            time.Time `json:"date"`
 }
 
 type PaymentListResponse struct {
-	Payments []PaymentResponse `json:"pagos"`
+	Payments []PaymentResponse `json:"payments"`
 	Total    int64             `json:"total"`
-	Page     int               `json:"pagina"`
-	Limit    int               `json:"limite"`
+	Page     int               `json:"page"`
+	Limit    int               `json:"limit"`
 }
 
 type PaymentMethodResponse struct {
-	IDMetodoPago uint   `json:"id_metodo_pago"`
-	Nombre       string `json:"nombre"`
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 type PaymentMethodListResponse struct {
-	Methods []PaymentMethodResponse `json:"metodos_pago"`
+	Methods []PaymentMethodResponse `json:"methods"`
 	Total   int64                   `json:"total"`
 }
 
 type PaymentByOrderResponse struct {
-	IDCompra      uint                `json:"id_compra"`
-	TotalOrden    float64             `json:"total_orden"`
-	TotalPagado   float64             `json:"total_pagado"`
-	Pendiente     float64             `json:"pendiente"`
-	Payments      []PaymentResponse   `json:"pagos"`
+	OrderID    uint              `json:"order_id"`
+	OrderTotal float64           `json:"order_total"`
+	TotalPaid  float64           `json:"total_paid"`
+	Pending    float64           `json:"pending"`
+	Payments   []PaymentResponse `json:"payments"`
 }

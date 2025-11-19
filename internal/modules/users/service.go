@@ -141,3 +141,22 @@ func (s *Service) ToResponse(usr *domain.User) UserResponse {
 		CreatedAt: usr.CreatedAt,
 	}
 }
+
+func (s *Service) Login(req LoginRequest) (*LoginResponse, error) {
+	user, err := s.repo.FindByEmail(req.Email)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	if !s.verifyPassword(user.Password, req.Password) {
+		return nil, errors.New("invalid credentials")
+	}
+
+	// TODO: Generate real JWT
+	token := "dummy-token"
+
+	return &LoginResponse{
+		Token: token,
+		User:  s.ToResponse(user),
+	}, nil
+}
