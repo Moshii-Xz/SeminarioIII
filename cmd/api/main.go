@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"path/filepath"
 
 	"github.com/mordmora/expirapp/internal/platform/database"
 	"github.com/mordmora/expirapp/internal/server"
@@ -20,10 +19,10 @@ func main() {
 		TimeZone: "America/Bogota",
 	})
 
-	migrationsPath := filepath.Join(".", "migrations")
-	if err := database.RunMigrations(db, migrationsPath); err != nil {
-		log.Fatalf("failed to run migrations: %v", err)
-	}
+	//migrationsPath := filepath.Join(".", "migrations")
+	//if err := database.RunMigrations(db, migrationsPath); err != nil {
+	//	log.Fatalf("failed to run migrations: %v", err)
+	//}
 
 	servCfg := server.DefConfig()
 
