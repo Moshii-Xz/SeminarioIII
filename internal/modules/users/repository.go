@@ -15,6 +15,11 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
+// GetDB returns the underlying gorm.DB instance for transactions
+func (r *Repository) GetDB() *gorm.DB {
+	return r.db
+}
+
 func (r *Repository) Create(user *domain.User) error {
 	return r.db.Create(user).Error
 }
@@ -23,8 +28,12 @@ func (r *Repository) CreateClient(client *domain.Client) error {
 	return r.db.Create(client).Error
 }
 
-func (r *Repository) CreateSeller(seller *domain.Seller) error {
-	return r.db.Create(seller).Error
+func (r *Repository) CreateStore(store *domain.Store) error {
+	return r.db.Create(store).Error
+}
+
+func (r *Repository) CreateAdmin(admin *domain.Admin) error {
+	return r.db.Create(admin).Error
 }
 
 func (r *Repository) FindByID(id uint) (*domain.User, error) {

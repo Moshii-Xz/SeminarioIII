@@ -19,8 +19,8 @@ type Product struct {
 	Stock          int       `gorm:"column:stock;default:0;check:stock >= 0"`
 
 	// Foreign Key
-	SellerID uint   `gorm:"column:id_vendedor;not null"`
-	Seller   Seller `gorm:"foreignKey:SellerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	StoreID uint   `gorm:"column:id_tienda;not null"`
+	Store   Store `gorm:"foreignKey:StoreID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (Product) TableName() string {

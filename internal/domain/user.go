@@ -33,11 +33,20 @@ func (Client) TableName() string {
 	return "cliente"
 }
 
-type Seller struct {
-	ID              uint   `gorm:"column:id_vendedor;primaryKey"`
+type Store struct {
+	ID              uint   `gorm:"column:id_tienda;primaryKey"`
 	ResponsibleArea string `gorm:"column:area_responsable"`
 }
 
-func (Seller) TableName() string {
-	return "vendedor"
+func (Store) TableName() string {
+	return "tienda"
+}
+
+type Admin struct {
+	ID              uint   `gorm:"column:id_admin;primaryKey"`
+	SpecialPermissions string `gorm:"column:permisos_especiales;type:text"`
+}
+
+func (Admin) TableName() string {
+	return "administrador"
 }

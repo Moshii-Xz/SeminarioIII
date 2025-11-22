@@ -41,50 +41,76 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 
 	// Determine role (default to "comprador")
 	roleName := "comprador"
-	if req.Role == "vendedor" {
-		roleName = "vendedor"
+	if req.Role == "tienda" {
+		roleName = "tienda"
+	} else if req.Role == "admin" {
+		roleName = "admin"
 	}
-	// Note: "admin" role cannot be assigned via public registration
+	// Note: "admin" role should typically be assigned by existing admins, not via public registration
 
+	// Find role - this is required for creating the user-role relationship
 	role, err := s.repo.FindRoleByName(roleName)
-	var roles []domain.Role
-	if err == nil {
-		roles = append(roles, *role)
-	} else {
-		fmt.Printf("Warning: Role '%s' not found: %v\n", roleName, err)
+	if err != nil {
+		return nil, fmt.Errorf("role '%s' not found: %w", roleName, err)
 	}
+	var roles []domain.Role
+	roles = append(roles, *role)
+
+	// Use transaction to ensure atomicity
+	db := s.repo.GetDB()
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
 	user := &domain.User{
 		Name:     req.Name,
 		Email:    req.Email,
-		Password: hashedPass,
+		Password:  hashedPass,
 		Roles:    roles,
 	}
 
-	if err := s.repo.Create(user); err != nil {
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("error creating user: %w", err)
 	}
 
 	// Create specific profile based on role
-	if roleName == "vendedor" {
-		seller := &domain.Seller{
+	switch roleName {
+	case "tienda":
+		store := &domain.Store{
 			ID:              user.ID,
 			ResponsibleArea: "General", // Default value
 		}
-		if err := s.repo.CreateSeller(seller); err != nil {
-			// Rollback user creation? Ideally yes, but for now let's log error
-			fmt.Printf("Error creating seller profile: %v\n", err)
+		if err := tx.Create(store).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("error creating store profile: %w", err)
 		}
-	} else {
-		// Default to client profile
+	case "admin":
+		admin := &domain.Admin{
+			ID:                user.ID,
+			SpecialPermissions: "", // Empty by default
+		}
+		if err := tx.Create(admin).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("error creating admin profile: %w", err)
+		}
+	default: // "comprador" or any other role defaults to client
 		client := &domain.Client{
 			ID:      user.ID,
 			Address: "", // Empty by default
 			Phone:   "", // Empty by default
 		}
-		if err := s.repo.CreateClient(client); err != nil {
-			fmt.Printf("Error creating client profile: %v\n", err)
+		if err := tx.Create(client).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("error creating client profile: %w", err)
 		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("error committing transaction: %w", err)
 	}
 
 	return user, nil

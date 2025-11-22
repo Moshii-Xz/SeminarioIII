@@ -18,14 +18,15 @@ func setupTestDB() (*gorm.DB, error) {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&domain.User{}, &domain.Role{}, &domain.Client{}, &domain.Seller{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Role{}, &domain.Client{}, &domain.Store{}, &domain.Admin{})
 	if err != nil {
 		return nil, err
 	}
 
 	// Seed roles
 	db.Create(&domain.Role{RoleName: "comprador"})
-	db.Create(&domain.Role{RoleName: "vendedor"})
+	db.Create(&domain.Role{RoleName: "tienda"})
+	db.Create(&domain.Role{RoleName: "admin"})
 
 	return db, nil
 }
@@ -243,15 +244,15 @@ func TestLogin_UserNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "invalid credentials")
 }
 
-func TestCreateUser_AsSeller(t *testing.T) {
+func TestCreateUser_AsStore(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
 
 	req := users.CreateUserRequest{
-		Name:     "Seller User",
-		Email:    "seller@example.com",
+		Name:     "Store User",
+		Email:    "store@example.com",
 		Password: "password123",
-		Role:     "vendedor",
+		Role:     "tienda",
 	}
 
 	user, err := service.Create(req)
@@ -259,12 +260,12 @@ func TestCreateUser_AsSeller(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 
-	// Verify Seller profile was created
-	var seller domain.Seller
-	err = db.First(&seller, user.ID).Error
+	// Verify Store profile was created
+	var store domain.Store
+	err = db.First(&store, user.ID).Error
 	assert.NoError(t, err)
-	assert.Equal(t, user.ID, seller.ID)
-	assert.Equal(t, "General", seller.ResponsibleArea)
+	assert.Equal(t, user.ID, store.ID)
+	assert.Equal(t, "General", store.ResponsibleArea)
 }
 
 func TestCreateUser_AsBuyer(t *testing.T) {

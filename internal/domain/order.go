@@ -7,7 +7,7 @@ import (
 type Order struct {
 	ID       uint      `gorm:"column:id_compra;primaryKey;autoIncrement"`
 	ClientID uint      `gorm:"column:id_cliente;not null"`
-	SellerID *uint     `gorm:"column:id_vendedor"`
+	StoreID *uint     `gorm:"column:id_tienda"`
 	Date     time.Time `gorm:"column:fecha_compra;default:CURRENT_DATE;not null"`
 
 	// Relaciones

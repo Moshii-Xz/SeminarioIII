@@ -13,7 +13,7 @@ Format: `Authorization: Bearer <token>`
   "nombre": "string (required, min=2, max=100)",
   "correo": "string (required, email)",
   "contrasena": "string (required, min=6)",
-  "rol": "string (optional, values: 'comprador', 'vendedor')"
+  "rol": "string (optional, values: 'comprador', 'tienda')"
 }
 ```
 **Response:**
@@ -126,7 +126,7 @@ Format: `Authorization: Bearer <token>`
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
   "stock": "int (optional, min=0)",
-  "id_vendedor": "uint (required)"
+  "id_tienda": "uint (required)"
 }
 ```
 **Response:**
@@ -221,7 +221,7 @@ Format: `Authorization: Bearer <token>`
 ```json
 {
   "client_id": "uint (required)",
-  "seller_id": "uint (optional)",
+  "store_id": "uint (optional)",
   "items": [
     {
       "product_id": "uint (required)",
@@ -237,7 +237,7 @@ Format: `Authorization: Bearer <token>`
   "data": {
     "id": "uint",
     "client_id": "uint",
-    "seller_id": "uint",
+    "store_id": "uint",
     "date": "time",
     "items": [],
     "total": "float64"
@@ -253,7 +253,7 @@ Format: `Authorization: Bearer <token>`
   "data": {
     "id": "uint",
     "client_id": "uint",
-    "seller_id": "uint",
+    "store_id": "uint",
     "date": "time",
     "items": [],
     "total": "float64"
@@ -265,7 +265,7 @@ Format: `Authorization: Bearer <token>`
 **Request:**
 ```json
 {
-  "seller_id": "uint (optional)"
+  "store_id": "uint (optional)"
 }
 ```
 **Response:**
@@ -274,7 +274,7 @@ Format: `Authorization: Bearer <token>`
   "data": {
     "id": "uint",
     "client_id": "uint",
-    "seller_id": "uint",
+    "store_id": "uint",
     "date": "time",
     "items": [],
     "total": "float64"

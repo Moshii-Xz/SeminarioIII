@@ -21,7 +21,7 @@ func setupTestDB() (*gorm.DB, error) {
 	db.Exec("PRAGMA foreign_keys = ON")
 
 	// Migrate the schema
-	err = db.AutoMigrate(&domain.User{}, &domain.Seller{}, &domain.Product{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Store{}, &domain.Product{})
 	if err != nil {
 		return nil, err
 	}
@@ -34,33 +34,33 @@ func setupService(db *gorm.DB) *catalog.Service {
 	return catalog.NewService(repo)
 }
 
-func createSeller(db *gorm.DB) uint {
+func createStore(db *gorm.DB) uint {
 	user := domain.User{
-		Name:     "Seller",
-		Email:    "seller@test.com",
+		Name:     "Store",
+		Email:    "store@test.com",
 		Password: "hash",
 	}
 	db.Create(&user)
 
-	seller := domain.Seller{
+	store := domain.Store{
 		ID:              user.ID,
 		ResponsibleArea: "Test Area",
 	}
-	db.Create(&seller)
+	db.Create(&store)
 
-	return seller.ID
+	return store.ID
 }
 
 func TestCreateProduct_Success(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
-	sellerID := createSeller(db)
+	storeID := createStore(db)
 
 	req := catalog.CreateProductRequest{
 		Name:           "Valid Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(24 * time.Hour),
-		SellerID:       sellerID,
+		StoreID:       storeID,
 	}
 
 	product, err := service.Create(req)
@@ -68,19 +68,19 @@ func TestCreateProduct_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, product)
 	assert.Equal(t, req.Name, product.Name)
-	assert.Equal(t, sellerID, product.SellerID)
+	assert.Equal(t, storeID, product.StoreID)
 }
 
 func TestCreateProduct_PastExpirationDate(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
-	sellerID := createSeller(db)
+	storeID := createStore(db)
 
 	req := catalog.CreateProductRequest{
 		Name:           "Expired Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(-24 * time.Hour), // Past date
-		SellerID:       sellerID,
+		StoreID:       storeID,
 	}
 
 	product, err := service.Create(req)
@@ -90,16 +90,16 @@ func TestCreateProduct_PastExpirationDate(t *testing.T) {
 	assert.Contains(t, err.Error(), "la fecha de vencimiento no puede ser en el pasado")
 }
 
-func TestCreateProduct_InvalidSeller(t *testing.T) {
+func TestCreateProduct_InvalidStore(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
-	// No seller created
+	// No store created
 
 	req := catalog.CreateProductRequest{
 		Name:           "Orphan Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(24 * time.Hour),
-		SellerID:       999, // Non-existent seller
+		StoreID:       999, // Non-existent store
 	}
 
 	product, err := service.Create(req)
@@ -114,7 +114,7 @@ func TestCreateProduct_InvalidSeller(t *testing.T) {
 	// For now, let's assume the DB enforces it or we want to catch it.
 	// If this fails, it means we need to enable FKs in SQLite or add a check in service.
 
-	// Actually, let's check if the service validates seller existence. It probably doesn't explicitly.
+	// Actually, let's check if the service validates store existence. It probably doesn't explicitly.
 	// But the DB insert should fail.
 
 	if err == nil {

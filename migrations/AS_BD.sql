@@ -28,8 +28,8 @@ CREATE TABLE cliente (
     telefono VARCHAR(20)
 );
 
-CREATE TABLE vendedor (
-    id_vendedor INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+CREATE TABLE tienda (
+    id_tienda INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
     area_responsable VARCHAR(100)
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE producto (
     precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),
-    id_vendedor INT NOT NULL REFERENCES vendedor(id_vendedor) ON DELETE CASCADE,
+    id_tienda INT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
@@ -54,7 +54,7 @@ CREATE TABLE producto (
 CREATE TABLE compra (
     id_compra SERIAL PRIMARY KEY,
     id_cliente INT NOT NULL REFERENCES cliente(id_cliente),
-    id_vendedor INT REFERENCES vendedor(id_vendedor),
+    id_tienda INT REFERENCES tienda(id_tienda),
     fecha_compra DATE DEFAULT CURRENT_DATE NOT NULL
 );
 
@@ -86,5 +86,5 @@ CREATE TABLE resena (
 );
 
 INSERT INTO rol (nombre) VALUES ('comprador');
-INSERT INTO rol (nombre) VALUES ('vendedor');
+INSERT INTO rol (nombre) VALUES ('tienda');
 INSERT INTO rol (nombre) VALUES ('admin');

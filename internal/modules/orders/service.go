@@ -44,7 +44,7 @@ func (s *Service) Create(req CreateOrderRequest) (*domain.Order, error) {
 
 	order := &domain.Order{
 		ClientID: req.ClientID,
-		SellerID: req.SellerID,
+		StoreID: req.StoreID,
 		Date:     time.Now(),
 		Details:  orderDetails,
 	}
@@ -72,8 +72,8 @@ func (s *Service) Update(id uint, req UpdateOrderRequest) (*domain.Order, error)
 		return nil, err
 	}
 
-	if req.SellerID != nil {
-		order.SellerID = req.SellerID
+	if req.StoreID != nil {
+		order.StoreID = req.StoreID
 	}
 
 	if err := s.repo.Update(order); err != nil {
@@ -120,7 +120,7 @@ func (s *Service) ListByClient(clientID uint, page, limit int) ([]domain.Order, 
 	return s.repo.FindByClientID(clientID, limit, offset)
 }
 
-func (s *Service) ListBySeller(sellerID uint, page, limit int) ([]domain.Order, int64, error) {
+func (s *Service) ListByStore(storeID uint, page, limit int) ([]domain.Order, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -128,7 +128,7 @@ func (s *Service) ListBySeller(sellerID uint, page, limit int) ([]domain.Order, 
 		limit = 10
 	}
 	offset := (page - 1) * limit
-	return s.repo.FindBySellerID(sellerID, limit, offset)
+	return s.repo.FindByStoreID(storeID, limit, offset)
 }
 
 func (s *Service) AddOrderItem(orderID uint, req AddOrderItemRequest) (*domain.OrderDetail, error) {
@@ -252,7 +252,7 @@ func (s *Service) ToResponse(order *domain.Order) OrderResponse {
 	return OrderResponse{
 		ID:       order.ID,
 		ClientID: order.ClientID,
-		SellerID: order.SellerID,
+		StoreID: order.StoreID,
 		Date:     order.Date,
 		Items:    items,
 		Total:    total,

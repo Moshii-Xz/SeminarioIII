@@ -9,7 +9,7 @@ type CreateUserRequest struct {
 	Name     string `json:"nombre" binding:"required,min=2,max=100"`
 	Email    string `json:"correo" binding:"required,email"`
 	Password string `json:"contrasena" binding:"required,min=6"`
-	Role     string `json:"rol" binding:"omitempty,oneof=comprador vendedor"`
+	Role     string `json:"rol" binding:"omitempty,oneof=comprador tienda"`
 }
 
 /*

@@ -4,7 +4,7 @@ import "time"
 
 type CreateOrderRequest struct {
 	ClientID uint               `json:"client_id" binding:"required"`
-	SellerID *uint              `json:"seller_id" binding:"omitempty"`
+	StoreID *uint              `json:"store_id" binding:"omitempty"`
 	Items    []OrderItemRequest `json:"items" binding:"required,min=1,dive"`
 }
 
@@ -15,7 +15,7 @@ type OrderItemRequest struct {
 }
 
 type UpdateOrderRequest struct {
-	SellerID *uint `json:"seller_id" binding:"omitempty"`
+	StoreID *uint `json:"store_id" binding:"omitempty"`
 }
 
 type AddOrderItemRequest struct {
@@ -40,7 +40,7 @@ type OrderItemResponse struct {
 type OrderResponse struct {
 	ID       uint                `json:"id"`
 	ClientID uint                `json:"client_id"`
-	SellerID *uint               `json:"seller_id,omitempty"`
+	StoreID *uint               `json:"store_id,omitempty"`
 	Date     time.Time           `json:"date"`
 	Items    []OrderItemResponse `json:"items"`
 	Total    float64             `json:"total"`

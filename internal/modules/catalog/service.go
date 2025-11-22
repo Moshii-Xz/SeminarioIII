@@ -27,7 +27,7 @@ func (s *Service) Create(req CreateProductRequest) (*domain.Product, error) {
 		Price:          req.Price,
 		ExpirationDate: req.ExpirationDate,
 		Stock:          req.Stock,
-		SellerID:       req.SellerID,
+		StoreID:       req.StoreID,
 	}
 
 	if err := s.repo.Create(product); err != nil {

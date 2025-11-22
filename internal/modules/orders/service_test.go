@@ -23,7 +23,7 @@ func setupTestDB() (*gorm.DB, error) {
 	err = db.AutoMigrate(
 		&domain.User{},
 		&domain.Client{},
-		&domain.Seller{},
+		&domain.Store{},
 		&domain.Product{},
 		&domain.Order{},
 		&domain.OrderDetail{},
@@ -49,29 +49,29 @@ func createClient(db *gorm.DB) uint {
 	return client.ID
 }
 
-func createSellerAndProduct(db *gorm.DB, stock int) (uint, uint) {
-	user := domain.User{Name: "Seller", Email: "seller@test.com", Password: "hash"}
+func createStoreAndProduct(db *gorm.DB, stock int) (uint, uint) {
+	user := domain.User{Name: "Store", Email: "store@test.com", Password: "hash"}
 	db.Create(&user)
-	seller := domain.Seller{ID: user.ID}
-	db.Create(&seller)
+	store := domain.Store{ID: user.ID}
+	db.Create(&store)
 
 	product := domain.Product{
 		Name:           "Product",
 		Price:          100.0,
 		ExpirationDate: time.Now().Add(24 * time.Hour),
 		Stock:          stock,
-		SellerID:       seller.ID,
+		StoreID:       store.ID,
 	}
 	db.Create(&product)
 
-	return seller.ID, product.ID
+	return store.ID, product.ID
 }
 
 func TestCreateOrder_Success(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
 	clientID := createClient(db)
-	_, productID := createSellerAndProduct(db, 10)
+	_, productID := createStoreAndProduct(db, 10)
 
 	req := orders.CreateOrderRequest{
 		ClientID: clientID,
@@ -97,7 +97,7 @@ func TestCreateOrder_InsufficientStock(t *testing.T) {
 	db, _ := setupTestDB()
 	service := setupService(db)
 	clientID := createClient(db)
-	_, productID := createSellerAndProduct(db, 5)
+	_, productID := createStoreAndProduct(db, 5)
 
 	req := orders.CreateOrderRequest{
 		ClientID: clientID,

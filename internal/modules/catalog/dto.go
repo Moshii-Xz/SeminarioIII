@@ -8,7 +8,7 @@ type CreateProductRequest struct {
 	Price          float64   `json:"precio" binding:"required,min=0"`
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"required"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
-	SellerID       uint      `json:"id_vendedor" binding:"required"`
+	StoreID       uint      `json:"id_tienda" binding:"required"`
 }
 
 type UpdateProductRequest struct {

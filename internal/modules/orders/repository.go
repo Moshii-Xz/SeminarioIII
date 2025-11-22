@@ -76,15 +76,15 @@ func (r *Repository) FindByClientID(clientID uint, limit, offset int) ([]domain.
 	return orders, total, err
 }
 
-func (r *Repository) FindBySellerID(sellerID uint, limit, offset int) ([]domain.Order, int64, error) {
+func (r *Repository) FindByStoreID(storeID uint, limit, offset int) ([]domain.Order, int64, error) {
 	var orders []domain.Order
 	var total int64
 
-	if err := r.db.Model(&domain.Order{}).Where("id_vendedor = ?", sellerID).Count(&total).Error; err != nil {
+	if err := r.db.Model(&domain.Order{}).Where("id_tienda = ?", storeID).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	err := r.db.Preload("Details").Preload("Details.Product").Where("id_vendedor = ?", sellerID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
+	err := r.db.Preload("Details").Preload("Details.Product").Where("id_tienda = ?", storeID).Limit(limit).Offset(offset).Order("fecha_compra DESC").Find(&orders).Error
 	return orders, total, err
 }
 
