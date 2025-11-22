@@ -30,7 +30,9 @@ CREATE TABLE cliente (
 
 CREATE TABLE tienda (
     id_tienda INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
-    area_responsable VARCHAR(100)
+    area_responsable VARCHAR(100),
+    direccion VARCHAR(200),
+    telefono VARCHAR(20)
 );
 
 CREATE TABLE administrador (

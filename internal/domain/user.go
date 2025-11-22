@@ -36,6 +36,8 @@ func (Client) TableName() string {
 type Store struct {
 	ID              uint   `gorm:"column:id_tienda;primaryKey"`
 	ResponsibleArea string `gorm:"column:area_responsable"`
+	Address         string `gorm:"column:direccion"`
+	Phone           string `gorm:"column:telefono"`
 }
 
 func (Store) TableName() string {

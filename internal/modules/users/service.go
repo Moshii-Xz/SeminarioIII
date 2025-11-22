@@ -83,6 +83,8 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 		store := &domain.Store{
 			ID:              user.ID,
 			ResponsibleArea: "General", // Default value
+			Address:         "",         // Empty by default
+			Phone:           "",         // Empty by default
 		}
 		if err := tx.Create(store).Error; err != nil {
 			tx.Rollback()

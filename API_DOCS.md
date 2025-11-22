@@ -686,3 +686,146 @@ Format: `Authorization: Bearer <token>`
   ]
 }
 ```
+
+## Stores Module
+
+### GET /api/v1/stores/
+**Request:** Query Params: `page` (int), `limit` (int)
+**Response:**
+```json
+{
+  "tiendas": [
+    {
+      "id_tienda": "uint",
+      "area_responsable": "string",
+      "direccion": "string",
+      "telefono": "string",
+      "usuario": {
+        "id_usuario": "uint",
+        "nombre": "string",
+        "correo": "string",
+        "fecha_registro": "time"
+      },
+      "fecha_creacion": "time"
+    }
+  ],
+  "total": "int64",
+  "pagina": "int",
+  "limite": "int"
+}
+```
+
+### GET /api/v1/stores/:id
+**Request:** None
+**Response:**
+```json
+{
+  "data": {
+    "id_tienda": "uint",
+    "area_responsable": "string",
+    "direccion": "string",
+    "telefono": "string",
+    "usuario": {
+      "id_usuario": "uint",
+      "nombre": "string",
+      "correo": "string",
+      "fecha_registro": "time"
+    },
+    "fecha_creacion": "time"
+  }
+}
+```
+
+### PUT /api/v1/stores/:id
+**Request:**
+```json
+{
+  "area_responsable": "string (optional, max=100)",
+  "direccion": "string (optional, max=200)",
+  "telefono": "string (optional, max=20)"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id_tienda": "uint",
+    "area_responsable": "string",
+    "direccion": "string",
+    "telefono": "string",
+    "usuario": {
+      "id_usuario": "uint",
+      "nombre": "string",
+      "correo": "string",
+      "fecha_registro": "time"
+    },
+    "fecha_creacion": "time"
+  }
+}
+```
+
+### GET /api/v1/stores/:id/products
+**Request:** Query Params: `page` (int), `limit` (int)
+**Response:**
+```json
+{
+  "data": {
+    "tienda": {
+      "id_tienda": "uint",
+      "area_responsable": "string",
+      "direccion": "string",
+      "telefono": "string",
+      "usuario": {
+        "id_usuario": "uint",
+        "nombre": "string",
+        "correo": "string",
+        "fecha_registro": "time"
+      },
+      "fecha_creacion": "time"
+    },
+    "productos": [
+      {
+        "id_producto": "uint",
+        "nombre": "string",
+        "descripcion": "string",
+        "precio": "float64",
+        "fecha_vencimiento": "time",
+        "stock": "int"
+      }
+    ],
+    "total": "int64"
+  }
+}
+```
+
+### GET /api/v1/stores/:id/orders
+**Request:** Query Params: `page` (int), `limit` (int)
+**Response:**
+```json
+{
+  "data": {
+    "tienda": {
+      "id_tienda": "uint",
+      "area_responsable": "string",
+      "direccion": "string",
+      "telefono": "string",
+      "usuario": {
+        "id_usuario": "uint",
+        "nombre": "string",
+        "correo": "string",
+        "fecha_registro": "time"
+      },
+      "fecha_creacion": "time"
+    },
+    "ordenes": [
+      {
+        "id": "uint",
+        "client_id": "uint",
+        "date": "time",
+        "total": "float64"
+      }
+    ],
+    "total": "int64"
+  }
+}
+```

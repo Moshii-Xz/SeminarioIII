@@ -20,6 +20,7 @@ import (
 	"github.com/mordmora/expirapp/internal/modules/payments"
 	"github.com/mordmora/expirapp/internal/modules/reports"
 	"github.com/mordmora/expirapp/internal/modules/reviews"
+	"github.com/mordmora/expirapp/internal/modules/stores"
 	"github.com/mordmora/expirapp/internal/modules/users"
 	"gorm.io/gorm"
 )
@@ -237,6 +238,21 @@ func (s *Server) setupRouter() {
 			reportsGroup.GET("/sales", reportsHandler.GetSalesReport)
 			reportsGroup.GET("/stock", reportsHandler.GetStockReport)
 			reportsGroup.GET("/expiring", reportsHandler.GetExpiringProductsReport)
+		}
+
+		// Stores
+		storesRepo := stores.NewRepository(s.db)
+		storesService := stores.NewService(storesRepo)
+		storesHandler := stores.NewHandler(storesService)
+
+		storesGroup := v1.Group("/stores")
+		storesGroup.Use(middleware.Auth())
+		{
+			storesGroup.GET("/", storesHandler.List)
+			storesGroup.GET("/:id", storesHandler.GetByID)
+			storesGroup.PUT("/:id", storesHandler.Update)
+			storesGroup.GET("/:id/products", storesHandler.GetProducts)
+			storesGroup.GET("/:id/orders", storesHandler.GetOrders)
 		}
 	}
 
