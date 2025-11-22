@@ -13,7 +13,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=expirapp
       - DB_SSLMODE=disable
-      - DB_TIMEZONE=America/Bogota
+      - DB_TIMEZONE=UTC
     depends_on:
       - db
     restart: unless-stopped
