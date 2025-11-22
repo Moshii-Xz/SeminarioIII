@@ -67,3 +67,6 @@ CREATE TABLE pago (
     fecha_pago DATE DEFAULT CURRENT_DATE NOT NULL
 );
 
+INSERT INTO rol (nombre) VALUES ('comprador');
+INSERT INTO rol (nombre) VALUES ('vendedor');
+INSERT INTO rol (nombre) VALUES ('admin');

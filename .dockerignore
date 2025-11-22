@@ -1,0 +1,11 @@
+.git
+.vscode
+bin
+tmp
+*.exe
+*.log
+.env
+docker-compose.yml
+README.md
+SETUP.md
+API_DOCS.md

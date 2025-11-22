@@ -38,10 +38,26 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 		return nil, fmt.Errorf("error hashing passwrord %w", err)
 	}
 
+	// Determine role (default to "comprador")
+	roleName := "comprador"
+	if req.Role == "vendedor" {
+		roleName = "vendedor"
+	}
+	// Note: "admin" role cannot be assigned via public registration
+
+	role, err := s.repo.FindRoleByName(roleName)
+	var roles []domain.Role
+	if err == nil {
+		roles = append(roles, *role)
+	} else {
+		fmt.Printf("Warning: Role '%s' not found: %v\n", roleName, err)
+	}
+
 	user := &domain.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: hashedPass,
+		Roles:    roles,
 	}
 
 	if err := s.repo.Create(user); err != nil {

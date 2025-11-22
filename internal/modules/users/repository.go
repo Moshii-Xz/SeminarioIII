@@ -71,3 +71,12 @@ func (r *Repository) ExistsByEmail(email string) (bool, error) {
 	err := r.db.Model(&domain.User{}).Where("correo = ?", email).Count(&c).Error
 	return c > 0, err
 }
+
+func (r *Repository) FindRoleByName(name string) (*domain.Role, error) {
+	var role domain.Role
+	err := r.db.Where("nombre = ?", name).First(&role).Error
+	if err != nil {
+		return nil, err
+	}
+	return &role, nil
+}

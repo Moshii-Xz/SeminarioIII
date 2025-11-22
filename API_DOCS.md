@@ -8,7 +8,8 @@
 {
   "nombre": "string (required, min=2, max=100)",
   "correo": "string (required, email)",
-  "contrasena": "string (required, min=6)"
+  "contrasena": "string (required, min=6)",
+  "rol": "string (optional, values: 'comprador', 'vendedor')"
 }
 ```
 **Response:**

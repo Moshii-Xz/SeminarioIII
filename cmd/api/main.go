@@ -2,21 +2,31 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/mordmora/expirapp/internal/platform/database"
 	"github.com/mordmora/expirapp/internal/server"
 )
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func main() {
+	port, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
 
 	db := database.New(database.Config{
-		Host:     "localhost",
-		Port:     5432,
-		User:     "postgres",
-		Password: "1234",
-		DBName:   "expirapp",
-		SSLMode:  "disable",
-		TimeZone: "America/Bogota",
+		Host:     getEnv("DB_HOST", "localhost"),
+		Port:     port,
+		User:     getEnv("DB_USER", "postgres"),
+		Password: getEnv("DB_PASSWORD", "1234"),
+		DBName:   getEnv("DB_NAME", "expirapp"),
+		SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		TimeZone: getEnv("DB_TIMEZONE", "America/Bogota"),
 	})
 
 	//migrationsPath := filepath.Join(".", "migrations")
