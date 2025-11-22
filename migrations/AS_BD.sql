@@ -45,7 +45,10 @@ CREATE TABLE producto (
     precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),
-    id_vendedor INT NOT NULL REFERENCES vendedor(id_vendedor) ON DELETE CASCADE
+    id_vendedor INT NOT NULL REFERENCES vendedor(id_vendedor) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
 );
 
 CREATE TABLE compra (
@@ -69,6 +72,17 @@ CREATE TABLE pago (
     id_metodo_pago INT REFERENCES metodo_pago(id_metodo_pago),
     monto NUMERIC(10,2) NOT NULL CHECK (monto >= 0),
     fecha_pago DATE DEFAULT CURRENT_DATE NOT NULL
+);
+
+CREATE TABLE resena (
+    id_resena SERIAL PRIMARY KEY,
+    id_producto INT NOT NULL REFERENCES producto(id_producto) ON DELETE CASCADE,
+    id_cliente INT NOT NULL REFERENCES cliente(id_cliente) ON DELETE CASCADE,
+    calificacion INT NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+    comentario TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
 );
 
 INSERT INTO rol (nombre) VALUES ('comprador');
