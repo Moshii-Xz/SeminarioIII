@@ -18,10 +18,14 @@ func setupTestDB() (*gorm.DB, error) {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&domain.User{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Role{}, &domain.Client{}, &domain.Seller{})
 	if err != nil {
 		return nil, err
 	}
+
+	// Seed roles
+	db.Create(&domain.Role{RoleName: "comprador"})
+	db.Create(&domain.Role{RoleName: "vendedor"})
 
 	return db, nil
 }
@@ -221,4 +225,67 @@ func TestLogin_InvalidPassword(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, response)
 	assert.Contains(t, err.Error(), "invalid credentials")
+}
+
+func TestLogin_UserNotFound(t *testing.T) {
+	db, _ := setupTestDB()
+	service := setupService(db)
+
+	loginReq := users.LoginRequest{
+		Email:    "nonexistent@example.com",
+		Password: "password123",
+	}
+
+	response, err := service.Login(loginReq)
+
+	assert.Error(t, err)
+	assert.Nil(t, response)
+	assert.Contains(t, err.Error(), "invalid credentials")
+}
+
+func TestCreateUser_AsSeller(t *testing.T) {
+	db, _ := setupTestDB()
+	service := setupService(db)
+
+	req := users.CreateUserRequest{
+		Name:     "Seller User",
+		Email:    "seller@example.com",
+		Password: "password123",
+		Role:     "vendedor",
+	}
+
+	user, err := service.Create(req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+
+	// Verify Seller profile was created
+	var seller domain.Seller
+	err = db.First(&seller, user.ID).Error
+	assert.NoError(t, err)
+	assert.Equal(t, user.ID, seller.ID)
+	assert.Equal(t, "General", seller.ResponsibleArea)
+}
+
+func TestCreateUser_AsBuyer(t *testing.T) {
+	db, _ := setupTestDB()
+	service := setupService(db)
+
+	req := users.CreateUserRequest{
+		Name:     "Buyer User",
+		Email:    "buyer@example.com",
+		Password: "password123",
+		Role:     "comprador",
+	}
+
+	user, err := service.Create(req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+
+	// Verify Client profile was created
+	var client domain.Client
+	err = db.First(&client, user.ID).Error
+	assert.NoError(t, err)
+	assert.Equal(t, user.ID, client.ID)
 }

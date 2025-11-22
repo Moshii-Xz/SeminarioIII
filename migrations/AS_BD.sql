@@ -41,7 +41,8 @@ CREATE TABLE producto (
     descripcion TEXT,
     precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
     fecha_vencimiento DATE NOT NULL,
-    stock INT DEFAULT 0 CHECK (stock >= 0)
+    stock INT DEFAULT 0 CHECK (stock >= 0),
+    id_vendedor INT NOT NULL REFERENCES vendedor(id_vendedor) ON DELETE CASCADE
 );
 
 CREATE TABLE compra (

@@ -21,17 +21,12 @@ func (r *Repository) Create(order *domain.Order) error {
 
 func (r *Repository) CreateWithItems(order *domain.Order, items []domain.OrderDetail) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
+		// Since order.Details is populated in the service, GORM will attempt to create them.
+		// However, we want to ensure everything is correct.
+		// If we just Create(order), GORM creates the order and the associated details.
 		if err := tx.Create(order).Error; err != nil {
 			return err
 		}
-
-		for i := range items {
-			items[i].OrderID = order.ID
-			if err := tx.Create(&items[i]).Error; err != nil {
-				return err
-			}
-		}
-
 		return nil
 	})
 }

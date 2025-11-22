@@ -22,3 +22,22 @@ type User struct {
 func (User) TableName() string {
 	return "usuario"
 }
+
+type Client struct {
+	ID      uint   `gorm:"column:id_cliente;primaryKey"`
+	Address string `gorm:"column:direccion"`
+	Phone   string `gorm:"column:telefono"`
+}
+
+func (Client) TableName() string {
+	return "cliente"
+}
+
+type Seller struct {
+	ID              uint   `gorm:"column:id_vendedor;primaryKey"`
+	ResponsibleArea string `gorm:"column:area_responsable"`
+}
+
+func (Seller) TableName() string {
+	return "vendedor"
+}

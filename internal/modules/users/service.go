@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mordmora/expirapp/internal/domain"
+	"github.com/mordmora/expirapp/internal/platform/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -62,6 +63,28 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 
 	if err := s.repo.Create(user); err != nil {
 		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	// Create specific profile based on role
+	if roleName == "vendedor" {
+		seller := &domain.Seller{
+			ID:              user.ID,
+			ResponsibleArea: "General", // Default value
+		}
+		if err := s.repo.CreateSeller(seller); err != nil {
+			// Rollback user creation? Ideally yes, but for now let's log error
+			fmt.Printf("Error creating seller profile: %v\n", err)
+		}
+	} else {
+		// Default to client profile
+		client := &domain.Client{
+			ID:      user.ID,
+			Address: "", // Empty by default
+			Phone:   "", // Empty by default
+		}
+		if err := s.repo.CreateClient(client); err != nil {
+			fmt.Printf("Error creating client profile: %v\n", err)
+		}
 	}
 
 	return user, nil
@@ -168,8 +191,15 @@ func (s *Service) Login(req LoginRequest) (*LoginResponse, error) {
 		return nil, errors.New("invalid credentials")
 	}
 
-	// TODO: Generate real JWT
-	token := "dummy-token"
+	role := ""
+	if len(user.Roles) > 0 {
+		role = user.Roles[0].RoleName
+	}
+
+	token, err := auth.GenerateToken(user.ID, role)
+	if err != nil {
+		return nil, fmt.Errorf("error generating token: %w", err)
+	}
 
 	return &LoginResponse{
 		Token: token,

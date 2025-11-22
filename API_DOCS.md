@@ -1,5 +1,9 @@
 # API Documentation
 
+## Authentication
+All protected endpoints require a valid JWT token in the `Authorization` header.
+Format: `Authorization: Bearer <token>`
+
 ## Users Module
 
 ### POST /api/v1/users/
@@ -121,7 +125,8 @@
   "descripcion": "string (optional)",
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
-  "stock": "int (optional, min=0)"
+  "stock": "int (optional, min=0)",
+  "id_vendedor": "uint (required)"
 }
 ```
 **Response:**

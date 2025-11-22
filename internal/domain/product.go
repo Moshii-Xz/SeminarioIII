@@ -17,6 +17,10 @@ type Product struct {
 	Price          float64   `gorm:"column:precio;type:numeric(10,2);not null;check:precio >= 0"`
 	ExpirationDate time.Time `gorm:"column:fecha_vencimiento;type:date;not null"`
 	Stock          int       `gorm:"column:stock;default:0;check:stock >= 0"`
+
+	// Foreign Key
+	SellerID uint   `gorm:"column:id_vendedor;not null"`
+	Seller   Seller `gorm:"foreignKey:SellerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (Product) TableName() string {

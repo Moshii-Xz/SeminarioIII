@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mordmora/expirapp/internal/middleware"
 	"github.com/mordmora/expirapp/internal/modules/catalog"
 	"github.com/mordmora/expirapp/internal/modules/orders"
 	"github.com/mordmora/expirapp/internal/modules/payments"
@@ -132,11 +133,16 @@ func (s *Server) setupRouter() {
 		usersGroup := v1.Group("/users")
 		{
 			usersGroup.POST("/", usersHandler.Create)
-			usersGroup.GET("/:id", usersHandler.GetByID)
-			usersGroup.PUT("/:id", usersHandler.Update)
-			usersGroup.DELETE("/:id", usersHandler.Delete)
-			usersGroup.GET("/", usersHandler.List)
 			usersGroup.POST("/login", usersHandler.Login)
+
+			protected := usersGroup.Group("/")
+			protected.Use(middleware.Auth())
+			{
+				protected.GET("/:id", usersHandler.GetByID)
+				protected.PUT("/:id", usersHandler.Update)
+				protected.DELETE("/:id", usersHandler.Delete)
+				protected.GET("/", usersHandler.List)
+			}
 		}
 
 		// Catalog
@@ -146,11 +152,16 @@ func (s *Server) setupRouter() {
 
 		catalogGroup := v1.Group("/products")
 		{
-			catalogGroup.POST("/", catalogHandler.Create)
 			catalogGroup.GET("/:id", catalogHandler.GetByID)
-			catalogGroup.PUT("/:id", catalogHandler.Update)
-			catalogGroup.DELETE("/:id", catalogHandler.Delete)
 			catalogGroup.GET("/", catalogHandler.List)
+
+			protected := catalogGroup.Group("/")
+			protected.Use(middleware.Auth())
+			{
+				protected.POST("/", catalogHandler.Create)
+				protected.PUT("/:id", catalogHandler.Update)
+				protected.DELETE("/:id", catalogHandler.Delete)
+			}
 		}
 
 		// Orders
@@ -159,6 +170,7 @@ func (s *Server) setupRouter() {
 		ordersHandler := orders.NewHandler(ordersService)
 
 		ordersGroup := v1.Group("/orders")
+		ordersGroup.Use(middleware.Auth())
 		{
 			ordersGroup.POST("/", ordersHandler.Create)
 			ordersGroup.GET("/:id", ordersHandler.GetByID)
@@ -176,6 +188,7 @@ func (s *Server) setupRouter() {
 		paymentsHandler := payments.NewHandler(paymentsService)
 
 		paymentsGroup := v1.Group("/payments")
+		paymentsGroup.Use(middleware.Auth())
 		{
 			paymentsGroup.POST("/", paymentsHandler.Create)
 			paymentsGroup.GET("/:id", paymentsHandler.GetByID)
@@ -200,12 +213,17 @@ func (s *Server) setupRouter() {
 
 		reviewsGroup := v1.Group("/reviews")
 		{
-			reviewsGroup.POST("/", reviewsHandler.Create)
 			reviewsGroup.GET("/:id", reviewsHandler.GetByID)
-			reviewsGroup.PUT("/:id", reviewsHandler.Update)
-			reviewsGroup.DELETE("/:id", reviewsHandler.Delete)
 			reviewsGroup.GET("/", reviewsHandler.List)
 			reviewsGroup.GET("/product/:productId", reviewsHandler.ListByProduct)
+
+			protected := reviewsGroup.Group("/")
+			protected.Use(middleware.Auth())
+			{
+				protected.POST("/", reviewsHandler.Create)
+				protected.PUT("/:id", reviewsHandler.Update)
+				protected.DELETE("/:id", reviewsHandler.Delete)
+			}
 		}
 
 		// Reports
@@ -214,6 +232,7 @@ func (s *Server) setupRouter() {
 		reportsHandler := reports.NewHandler(reportsService)
 
 		reportsGroup := v1.Group("/reports")
+		reportsGroup.Use(middleware.Auth())
 		{
 			reportsGroup.GET("/sales", reportsHandler.GetSalesReport)
 			reportsGroup.GET("/stock", reportsHandler.GetStockReport)

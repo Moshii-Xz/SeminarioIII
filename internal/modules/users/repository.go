@@ -19,6 +19,14 @@ func (r *Repository) Create(user *domain.User) error {
 	return r.db.Create(user).Error
 }
 
+func (r *Repository) CreateClient(client *domain.Client) error {
+	return r.db.Create(client).Error
+}
+
+func (r *Repository) CreateSeller(seller *domain.Seller) error {
+	return r.db.Create(seller).Error
+}
+
 func (r *Repository) FindByID(id uint) (*domain.User, error) {
 	var user domain.User
 	err := r.db.First(&user, id).Error
@@ -35,7 +43,7 @@ func (r *Repository) FindByID(id uint) (*domain.User, error) {
 func (r *Repository) FindByEmail(email string) (*domain.User, error) {
 	var user domain.User
 
-	err := r.db.Where("correo = ?", email).First(&user).Error
+	err := r.db.Preload("Roles").Where("correo = ?", email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")

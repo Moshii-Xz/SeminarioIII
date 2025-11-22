@@ -32,7 +32,7 @@ func main() {
 	//migrationsPath := filepath.Join(".", "migrations")
 	//if err := database.RunMigrations(db, migrationsPath); err != nil {
 	//	log.Fatalf("failed to run migrations: %v", err)
-	//}
+	//	}
 
 	servCfg := server.DefConfig()
 
