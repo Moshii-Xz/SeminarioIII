@@ -10,7 +10,10 @@ CREATE TABLE usuario (
     id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
-    contrasena VARCHAR(100) NOT NULL
+    contrasena VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
 );
 
 CREATE TABLE usuario_rol (
