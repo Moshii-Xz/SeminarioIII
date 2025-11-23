@@ -8,6 +8,7 @@ type CreateProductRequest struct {
 	Price          float64   `json:"precio" binding:"required,min=0"`
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"required"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
+	Status         string    `json:"estado" binding:"omitempty"`
 	StoreID       uint      `json:"id_tienda" binding:"required"`
 }
 
@@ -17,6 +18,7 @@ type UpdateProductRequest struct {
 	Price          float64   `json:"precio" binding:"omitempty,min=0"`
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"omitempty"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
+	Status         string    `json:"estado" binding:"omitempty"`
 }
 
 type ProductResponse struct {
@@ -26,6 +28,7 @@ type ProductResponse struct {
 	Price          float64   `json:"precio"`
 	ExpirationDate time.Time `json:"fecha_vencimiento"`
 	Stock          int       `json:"stock"`
+	Status         string    `json:"estado"`
 }
 
 type ProductListResponse struct {

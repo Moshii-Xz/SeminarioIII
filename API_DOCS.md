@@ -126,6 +126,7 @@ Format: `Authorization: Bearer <token>`
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
   "stock": "int (optional, min=0)",
+  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado'. Default: 'En preparación')",
   "id_tienda": "uint (required)"
 }
 ```
@@ -138,7 +139,8 @@ Format: `Authorization: Bearer <token>`
     "descripcion": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
-    "stock": "int"
+    "stock": "int",
+    "estado": "string"
   }
 }
 ```
@@ -154,7 +156,8 @@ Format: `Authorization: Bearer <token>`
     "descripcion": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
-    "stock": "int"
+    "stock": "int",
+    "estado": "string"
   }
 }
 ```
@@ -167,7 +170,8 @@ Format: `Authorization: Bearer <token>`
   "descripcion": "string (optional)",
   "precio": "float64 (optional)",
   "fecha_vencimiento": "time (optional)",
-  "stock": "int (optional)"
+  "stock": "int (optional)",
+  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado')"
 }
 ```
 **Response:**
@@ -179,7 +183,8 @@ Format: `Authorization: Bearer <token>`
     "descripcion": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
-    "stock": "int"
+    "stock": "int",
+    "estado": "string"
   }
 }
 ```
@@ -205,7 +210,8 @@ Format: `Authorization: Bearer <token>`
       "descripcion": "string",
       "precio": "float64",
       "fecha_vencimiento": "time",
-      "stock": "int"
+      "stock": "int",
+      "estado": "string"
     }
   ],
   "total": "int64",

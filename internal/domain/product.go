@@ -17,6 +17,7 @@ type Product struct {
 	Price          float64   `gorm:"column:precio;type:numeric(10,2);not null;check:precio >= 0"`
 	ExpirationDate time.Time `gorm:"column:fecha_vencimiento;type:date;not null"`
 	Stock          int       `gorm:"column:stock;default:0;check:stock >= 0"`
+	Status      string    `gorm:"column:estado;type:varchar(50);default:En preparación"`
 
 	// Foreign Key
 	StoreID uint   `gorm:"column:id_tienda;not null"`

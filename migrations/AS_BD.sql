@@ -47,6 +47,7 @@ CREATE TABLE producto (
     precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),
+    estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado')),
     id_tienda INT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

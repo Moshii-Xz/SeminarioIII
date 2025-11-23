@@ -21,12 +21,30 @@ func (s *Service) Create(req CreateProductRequest) (*domain.Product, error) {
 		return nil, errors.New("la fecha de vencimiento no puede ser en el pasado")
 	}
 
+	status := req.Status
+	if status == "" {
+		status = "En preparación" // Default value
+	} else {
+		validStatuses := []string{"En preparación", "Listo para recoger", "Entregado"}
+		valid := false
+		for _, vs := range validStatuses {
+			if status == vs {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return nil, errors.New("estado inválido. Debe ser uno de: 'En preparación', 'Listo para recoger', 'Entregado'")
+		}
+	}
+
 	product := &domain.Product{
 		Name:           req.Name,
 		Description:    req.Description,
 		Price:          req.Price,
 		ExpirationDate: req.ExpirationDate,
 		Stock:          req.Stock,
+		Status:        status,
 		StoreID:       req.StoreID,
 	}
 
@@ -65,6 +83,20 @@ func (s *Service) Update(id uint, req UpdateProductRequest) (*domain.Product, er
 	if req.Stock >= 0 {
 		product.Stock = req.Stock
 	}
+	if req.Status != "" {
+		validStatuses := []string{"En preparación", "Listo para recoger", "Entregado"}
+		valid := false
+		for _, vs := range validStatuses {
+			if req.Status == vs {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return nil, errors.New("estado inválido. Debe ser uno de: 'En preparación', 'Listo para recoger', 'Entregado'")
+		}
+		product.Status = req.Status
+	}
 
 	if err := s.repo.Update(product); err != nil {
 		return nil, fmt.Errorf("error updating product: %w", err)
@@ -96,5 +128,6 @@ func (s *Service) ToResponse(product *domain.Product) ProductResponse {
 		Price:          product.Price,
 		ExpirationDate: product.ExpirationDate,
 		Stock:          product.Stock,
+		Status:         product.Status,
 	}
 }
