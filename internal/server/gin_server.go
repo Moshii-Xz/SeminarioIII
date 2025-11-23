@@ -242,17 +242,24 @@ func (s *Server) setupRouter() {
 
 		// Stores
 		storesRepo := stores.NewRepository(s.db)
-		storesService := stores.NewService(storesRepo)
+		storesService := stores.NewServiceWithUserRepo(storesRepo, usersRepo)
 		storesHandler := stores.NewHandler(storesService)
 
 		storesGroup := v1.Group("/stores")
-		storesGroup.Use(middleware.Auth())
 		{
-			storesGroup.GET("/", storesHandler.List)
-			storesGroup.GET("/:id", storesHandler.GetByID)
-			storesGroup.PUT("/:id", storesHandler.Update)
-			storesGroup.GET("/:id/products", storesHandler.GetProducts)
-			storesGroup.GET("/:id/orders", storesHandler.GetOrders)
+			// Public endpoint for store registration
+			storesGroup.POST("/", storesHandler.Create)
+
+			// Protected endpoints
+			protected := storesGroup.Group("/")
+			protected.Use(middleware.Auth())
+			{
+				protected.GET("/", storesHandler.List)
+				protected.GET("/:id", storesHandler.GetByID)
+				protected.PUT("/:id", storesHandler.Update)
+				protected.GET("/:id/products", storesHandler.GetProducts)
+				protected.GET("/:id/orders", storesHandler.GetOrders)
+			}
 		}
 	}
 

@@ -1,17 +1,36 @@
 package stores
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/mordmora/expirapp/internal/domain"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type Service struct {
-	repo *Repository
+	repo     *Repository
+	userRepo UserRepository
+}
+
+// UserRepository defines the interface for user operations needed by stores service
+type UserRepository interface {
+	ExistsByEmail(email string) (bool, error)
+	FindRoleByName(name string) (*domain.Role, error)
+	GetDB() *gorm.DB
 }
 
 func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
+}
+
+// NewServiceWithUserRepo creates a service with user repository for creating stores
+func NewServiceWithUserRepo(repo *Repository, userRepo UserRepository) *Service {
+	return &Service{
+		repo:     repo,
+		userRepo: userRepo,
+	}
 }
 
 func (s *Service) GetById(id uint) (*StoreResponse, error) {
@@ -161,6 +180,74 @@ func (s *Service) GetOrders(storeID uint, page, limit int) (*StoreOrdersResponse
 		Orders: orderInfos,
 		Total:  total,
 	}, nil
+}
+
+func (s *Service) Create(req CreateStoreRequest) (*StoreResponse, error) {
+	if s.userRepo == nil {
+		return nil, errors.New("user repository not configured")
+	}
+
+	exists, err := s.userRepo.ExistsByEmail(req.Email)
+	if err != nil {
+		return nil, fmt.Errorf("error checking email existence: %w", err)
+	}
+	if exists {
+		return nil, errors.New("email already in use")
+	}
+
+	// Hash password
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("error hashing password: %w", err)
+	}
+
+	role, err := s.userRepo.FindRoleByName("tienda")
+	if err != nil {
+		return nil, fmt.Errorf("role 'tienda' not found: %w", err)
+	}
+
+	db := s.userRepo.GetDB()
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	user := &domain.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: string(hashedPass),
+		Roles:    []domain.Role{*role},
+	}
+
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	responsibleArea := req.ResponsibleArea
+	if responsibleArea == "" {
+		responsibleArea = "General"
+	}
+
+	store := &domain.Store{
+		ID:              user.ID,
+		ResponsibleArea: responsibleArea,
+		Address:         req.Address,
+		Phone:           req.Phone,
+	}
+
+	if err := tx.Create(store).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("error creating store profile: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	return s.ToResponse(store, user), nil
 }
 
 func (s *Service) ToResponse(store *domain.Store, user *domain.User) *StoreResponse {

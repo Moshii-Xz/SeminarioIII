@@ -2,6 +2,15 @@ package stores
 
 import "time"
 
+type CreateStoreRequest struct {
+	Name           string `json:"nombre" binding:"required,min=1,max=100"`
+	Email          string `json:"correo" binding:"required,email"`
+	Password       string `json:"contrasena" binding:"required,min=6"`
+	ResponsibleArea string `json:"area_responsable" binding:"omitempty,max=100"`
+	Address         string `json:"direccion" binding:"omitempty,max=200"`
+	Phone           string `json:"telefono" binding:"omitempty,max=20"`
+}
+
 type UpdateStoreRequest struct {
 	ResponsibleArea string `json:"area_responsable" binding:"omitempty,max=100"`
 	Address         string `json:"direccion" binding:"omitempty,max=200"`

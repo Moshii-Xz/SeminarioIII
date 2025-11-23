@@ -695,6 +695,39 @@ Format: `Authorization: Bearer <token>`
 
 ## Stores Module
 
+### POST /api/v1/stores/ (Público - Registro de Tiendas)
+**Descripción:** Endpoint público para registrar una nueva tienda. Crea automáticamente un usuario con rol "tienda" y su perfil de tienda asociado.
+
+**Request:**
+```json
+{
+  "nombre": "string (required, min=1, max=100)",
+  "correo": "string (required, email)",
+  "contrasena": "string (required, min=6)",
+  "area_responsable": "string (optional, max=100)",
+  "direccion": "string (optional, max=200)",
+  "telefono": "string (optional, max=20)"
+}
+```
+**Response:**
+```json
+{
+  "data": {
+    "id_tienda": "uint",
+    "area_responsable": "string",
+    "direccion": "string",
+    "telefono": "string",
+    "usuario": {
+      "id_usuario": "uint",
+      "nombre": "string",
+      "correo": "string",
+      "fecha_registro": "time"
+    },
+    "fecha_creacion": "time"
+  }
+}
+```
+
 ### GET /api/v1/stores/
 **Request:** Query Params: `page` (int), `limit` (int)
 **Response:**
