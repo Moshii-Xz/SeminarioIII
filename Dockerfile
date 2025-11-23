@@ -24,6 +24,9 @@ WORKDIR /root/
 # Copiar el binario desde el builder
 COPY --from=builder /app/expirapp .
 
+# Crear directorio para uploads
+RUN mkdir -p uploads/images
+
 # Exponer el puerto
 EXPOSE 8080
 

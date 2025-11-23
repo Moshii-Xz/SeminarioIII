@@ -117,12 +117,52 @@ Format: `Authorization: Bearer <token>`
 
 ## Catalog Module (Products)
 
+### POST /api/v1/products/upload-image (Protegido)
+**Descripción:** Endpoint para subir una imagen desde el PC. Retorna la URL de la imagen que puede usarse en el campo `imagen_url` al crear o actualizar un producto.
+
+**Request:** 
+- Content-Type: `multipart/form-data`
+- Body: Form data con campo `imagen` (archivo)
+- Formatos permitidos: jpg, jpeg, png, gif, webp
+- Tamaño máximo: 5MB
+
+**Response:**
+```json
+{
+  "data": {
+    "imagen_url": "/uploads/images/1234567890_imagen.jpg",
+    "filename": "1234567890_imagen.jpg"
+  },
+  "message": "image uploaded successfully"
+}
+```
+
+**Ejemplo de uso:**
+```javascript
+const formData = new FormData();
+formData.append('imagen', fileInput.files[0]);
+
+fetch('/api/v1/products/upload-image', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer <token>'
+  },
+  body: formData
+})
+.then(res => res.json())
+.then(data => {
+  // Usar data.data.imagen_url en el campo imagen_url del producto
+  console.log('URL de la imagen:', data.data.imagen_url);
+});
+```
+
 ### POST /api/v1/products/
 **Request:**
 ```json
 {
   "nombre": "string (required)",
   "descripcion": "string (optional)",
+  "imagen_url": "string (optional, url, max=500)",
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
   "stock": "int (optional, min=0)",
@@ -137,6 +177,7 @@ Format: `Authorization: Bearer <token>`
     "id_producto": "uint",
     "nombre": "string",
     "descripcion": "string",
+    "imagen_url": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
@@ -154,6 +195,7 @@ Format: `Authorization: Bearer <token>`
     "id_producto": "uint",
     "nombre": "string",
     "descripcion": "string",
+    "imagen_url": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
@@ -168,6 +210,7 @@ Format: `Authorization: Bearer <token>`
 {
   "nombre": "string (optional)",
   "descripcion": "string (optional)",
+  "imagen_url": "string (optional, url, max=500)",
   "precio": "float64 (optional)",
   "fecha_vencimiento": "time (optional)",
   "stock": "int (optional)",
@@ -181,6 +224,7 @@ Format: `Authorization: Bearer <token>`
     "id_producto": "uint",
     "nombre": "string",
     "descripcion": "string",
+    "imagen_url": "string",
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
@@ -208,6 +252,7 @@ Format: `Authorization: Bearer <token>`
       "id_producto": "uint",
       "nombre": "string",
       "descripcion": "string",
+      "imagen_url": "string",
       "precio": "float64",
       "fecha_vencimiento": "time",
       "stock": "int",
@@ -827,6 +872,7 @@ Format: `Authorization: Bearer <token>`
         "id_producto": "uint",
         "nombre": "string",
         "descripcion": "string",
+        "imagen_url": "string",
         "precio": "float64",
         "fecha_vencimiento": "time",
         "stock": "int"

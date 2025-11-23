@@ -160,10 +160,14 @@ func (s *Server) setupRouter() {
 			protected.Use(middleware.Auth())
 			{
 				protected.POST("/", catalogHandler.Create)
+				protected.POST("/upload-image", catalogHandler.UploadImage)
 				protected.PUT("/:id", catalogHandler.Update)
 				protected.DELETE("/:id", catalogHandler.Delete)
 			}
 		}
+
+		// Serve static files (uploaded images)
+		s.engine.Static("/uploads", "./uploads")
 
 		// Orders
 		ordersRepo := orders.NewRepository(s.db)

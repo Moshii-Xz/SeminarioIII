@@ -128,6 +128,7 @@ func (s *Service) GetProducts(storeID uint, page, limit int) (*StoreProductsResp
 			ID:             p.ID,
 			Name:           p.Name,
 			Description:    p.Description,
+			ImageURL:       p.ImageURL,
 			Price:          p.Price,
 			ExpirationDate: p.ExpirationDate,
 			Stock:          p.Stock,

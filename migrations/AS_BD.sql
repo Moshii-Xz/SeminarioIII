@@ -44,6 +44,7 @@ CREATE TABLE producto (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
+    imagen_url VARCHAR(500),
     precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),

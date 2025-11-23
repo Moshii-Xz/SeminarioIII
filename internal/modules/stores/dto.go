@@ -50,6 +50,7 @@ type ProductInfo struct {
 	ID             uint      `json:"id_producto"`
 	Name           string    `json:"nombre"`
 	Description    string    `json:"descripcion"`
+	ImageURL       string    `json:"imagen_url"`
 	Price          float64   `json:"precio"`
 	ExpirationDate time.Time `json:"fecha_vencimiento"`
 	Stock          int       `json:"stock"`

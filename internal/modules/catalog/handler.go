@@ -1,8 +1,11 @@
 package catalog
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -118,5 +121,70 @@ func (h *Handler) List(c *gin.Context) {
 		Total:    total,
 		Page:     page,
 		Limit:    limit,
+	})
+}
+
+// UploadImage handles image upload for products
+func (h *Handler) UploadImage(c *gin.Context) {
+	// Single file
+	file, err := c.FormFile("imagen")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "invalid file",
+			"message": "imagen field is required",
+		})
+		return
+	}
+
+	// Validate file type
+	ext := filepath.Ext(file.Filename)
+	allowedExts := []string{".jpg", ".jpeg", ".png", ".gif", ".webp"}
+	validExt := false
+	for _, allowedExt := range allowedExts {
+		if ext == allowedExt {
+			validExt = true
+			break
+		}
+	}
+	if !validExt {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "invalid file type",
+			"message": "only jpg, jpeg, png, gif, and webp are allowed",
+		})
+		return
+	}
+
+	// Validate file size (max 5MB)
+	if file.Size > 5*1024*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "file too large",
+			"message": "file size must be less than 5MB",
+		})
+		return
+	}
+
+	// Generate unique filename
+	timestamp := time.Now().Unix()
+	filename := fmt.Sprintf("%d_%s", timestamp, file.Filename)
+	
+	// Save file to uploads/images/ directory
+	// In Docker, working directory is /root/, so we use relative path
+	uploadPath := filepath.Join("uploads", "images", filename)
+	if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "failed to save file",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Return the URL (accessible via static file server)
+	imageURL := fmt.Sprintf("/uploads/images/%s", filename)
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"imagen_url": imageURL,
+			"filename":   filename,
+		},
+		"message": "image uploaded successfully",
 	})
 }

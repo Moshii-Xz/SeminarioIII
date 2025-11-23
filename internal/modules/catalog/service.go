@@ -41,6 +41,7 @@ func (s *Service) Create(req CreateProductRequest) (*domain.Product, error) {
 	product := &domain.Product{
 		Name:           req.Name,
 		Description:    req.Description,
+		ImageURL:       req.ImageURL,
 		Price:          req.Price,
 		ExpirationDate: req.ExpirationDate,
 		Stock:          req.Stock,
@@ -70,6 +71,9 @@ func (s *Service) Update(id uint, req UpdateProductRequest) (*domain.Product, er
 	}
 	if req.Description != "" {
 		product.Description = req.Description
+	}
+	if req.ImageURL != "" {
+		product.ImageURL = req.ImageURL
 	}
 	if req.Price > 0 {
 		product.Price = req.Price
@@ -125,6 +129,7 @@ func (s *Service) ToResponse(product *domain.Product) ProductResponse {
 		ID:             product.ID,
 		Name:           product.Name,
 		Description:    product.Description,
+		ImageURL:       product.ImageURL,
 		Price:          product.Price,
 		ExpirationDate: product.ExpirationDate,
 		Stock:          product.Stock,
