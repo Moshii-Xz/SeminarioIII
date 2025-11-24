@@ -5,11 +5,7 @@ services:
     build: .
     container_name: expirapp-backend
     ports:
-<<<<<<< HEAD
       - "8081:8080"
-=======
-      - "8080:8080"
->>>>>>> 704e7de36411f44188ad1a83560391c73b0c9e08
     environment:
       - DB_HOST=db
       - DB_PORT=5432
