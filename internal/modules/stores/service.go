@@ -219,12 +219,17 @@ func (s *Service) Create(req CreateStoreRequest) (*StoreResponse, error) {
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: string(hashedPass),
-		Roles:    []domain.Role{*role},
 	}
 
 	if err := tx.Create(user).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	// Associate roles after user is created to ensure ID is available
+	if err := tx.Model(user).Association("Roles").Append([]domain.Role{*role}); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("error associating roles: %w", err)
 	}
 
 	responsibleArea := req.ResponsibleArea

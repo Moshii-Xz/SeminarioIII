@@ -69,12 +69,17 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 		Name:     req.Name,
 		Email:    req.Email,
 		Password:  hashedPass,
-		Roles:    roles,
 	}
 
 	if err := tx.Create(user).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("error creating user: %w", err)
+	}
+
+	// Associate roles after user is created to ensure ID is available
+	if err := tx.Model(user).Association("Roles").Append(roles); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("error associating roles: %w", err)
 	}
 
 	// Create specific profile based on role
