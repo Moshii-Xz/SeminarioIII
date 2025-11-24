@@ -10,7 +10,7 @@ type CreateProductRequest struct {
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"required"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
 	Status         string    `json:"estado" binding:"omitempty"`
-	StoreID       uint      `json:"id_tienda" binding:"required"`
+	// StoreID se obtiene automáticamente del token JWT del usuario autenticado
 }
 
 type UpdateProductRequest struct {

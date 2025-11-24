@@ -156,7 +156,9 @@ fetch('/api/v1/products/upload-image', {
 });
 ```
 
-### POST /api/v1/products/
+### POST /api/v1/products/ (Protegido)
+**Descripción:** Endpoint para crear un producto. El `id_tienda` se obtiene automáticamente del token JWT del usuario autenticado, por lo que no es necesario enviarlo en el request.
+
 **Request:**
 ```json
 {
@@ -166,10 +168,10 @@ fetch('/api/v1/products/upload-image', {
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
   "stock": "int (optional, min=0)",
-  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado'. Default: 'En preparación')",
-  "id_tienda": "uint (required)"
+  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado'. Default: 'En preparación')"
 }
 ```
+**Nota:** El `id_tienda` se asigna automáticamente desde el token JWT del usuario autenticado. Solo usuarios con rol "tienda" pueden crear productos.
 **Response:**
 ```json
 {

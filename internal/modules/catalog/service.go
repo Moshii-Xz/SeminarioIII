@@ -16,7 +16,7 @@ func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Create(req CreateProductRequest) (*domain.Product, error) {
+func (s *Service) Create(req CreateProductRequest, storeID uint) (*domain.Product, error) {
 	if req.ExpirationDate.Before(time.Now()) {
 		return nil, errors.New("la fecha de vencimiento no puede ser en el pasado")
 	}
@@ -46,7 +46,7 @@ func (s *Service) Create(req CreateProductRequest) (*domain.Product, error) {
 		ExpirationDate: req.ExpirationDate,
 		Stock:          req.Stock,
 		Status:        status,
-		StoreID:       req.StoreID,
+		StoreID:       storeID, // Usar el storeID del token JWT
 	}
 
 	if err := s.repo.Create(product); err != nil {
@@ -60,10 +60,15 @@ func (s *Service) GetById(id uint) (*domain.Product, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s *Service) Update(id uint, req UpdateProductRequest) (*domain.Product, error) {
+func (s *Service) Update(id uint, req UpdateProductRequest, storeID uint) (*domain.Product, error) {
 	product, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, err
+	}
+
+	// Validar que el producto pertenezca a la tienda del usuario autenticado
+	if product.StoreID != storeID {
+		return nil, errors.New("no tienes permiso para modificar este producto")
 	}
 
 	if req.Name != "" {
@@ -109,7 +114,17 @@ func (s *Service) Update(id uint, req UpdateProductRequest) (*domain.Product, er
 	return product, nil
 }
 
-func (s *Service) Delete(id uint) error {
+func (s *Service) Delete(id uint, storeID uint) error {
+	product, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Validar que el producto pertenezca a la tienda del usuario autenticado
+	if product.StoreID != storeID {
+		return errors.New("no tienes permiso para eliminar este producto")
+	}
+
 	return s.repo.Delete(id)
 }
 

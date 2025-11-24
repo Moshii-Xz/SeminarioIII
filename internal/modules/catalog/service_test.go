@@ -60,10 +60,9 @@ func TestCreateProduct_Success(t *testing.T) {
 		Name:           "Valid Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(24 * time.Hour),
-		StoreID:       storeID,
 	}
 
-	product, err := service.Create(req)
+	product, err := service.Create(req, storeID)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, product)
@@ -80,10 +79,9 @@ func TestCreateProduct_PastExpirationDate(t *testing.T) {
 		Name:           "Expired Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(-24 * time.Hour), // Past date
-		StoreID:       storeID,
 	}
 
-	product, err := service.Create(req)
+	product, err := service.Create(req, storeID)
 
 	assert.Error(t, err)
 	assert.Nil(t, product)
@@ -99,10 +97,9 @@ func TestCreateProduct_InvalidStore(t *testing.T) {
 		Name:           "Orphan Product",
 		Price:          10.0,
 		ExpirationDate: time.Now().Add(24 * time.Hour),
-		StoreID:       999, // Non-existent store
 	}
 
-	product, err := service.Create(req)
+	product, err := service.Create(req, 999) // Non-existent store
 
 	// GORM might not return an error immediately if foreign key constraints aren't enforced by SQLite driver by default,
 	// or if the repository doesn't check existence.

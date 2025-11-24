@@ -29,7 +29,27 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	product, err := h.service.Create(req)
+	// Obtener el userID del token JWT (establecido por el middleware de autenticación)
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "user ID not found in token",
+		})
+		return
+	}
+
+	// Convertir userID a uint (el userID del token es el id_tienda para usuarios con rol "tienda")
+	storeID, ok := userID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "internal error",
+			"message": "invalid user ID type",
+		})
+		return
+	}
+
+	product, err := h.service.Create(req, storeID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "error creating product",
@@ -70,15 +90,40 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
+	// Obtener el userID del token JWT
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "user ID not found in token",
+		})
+		return
+	}
+
+	storeID, ok := userID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "internal error",
+			"message": "invalid user ID type",
+		})
+		return
+	}
+
 	var req UpdateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	product, err := h.service.Update(uint(id), req)
+	product, err := h.service.Update(uint(id), req, storeID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		statusCode := http.StatusInternalServerError
+		if err.Error() == "no tienes permiso para modificar este producto" {
+			statusCode = http.StatusForbidden
+		} else if err.Error() == "product not found" {
+			statusCode = http.StatusNotFound
+		}
+		c.JSON(statusCode, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -93,8 +138,33 @@ func (h *Handler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(uint(id)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// Obtener el userID del token JWT
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"message": "user ID not found in token",
+		})
+		return
+	}
+
+	storeID, ok := userID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "internal error",
+			"message": "invalid user ID type",
+		})
+		return
+	}
+
+	if err := h.service.Delete(uint(id), storeID); err != nil {
+		statusCode := http.StatusInternalServerError
+		if err.Error() == "no tienes permiso para eliminar este producto" {
+			statusCode = http.StatusForbidden
+		} else if err.Error() == "product not found" {
+			statusCode = http.StatusNotFound
+		}
+		c.JSON(statusCode, gin.H{"error": err.Error()})
 		return
 	}
 
