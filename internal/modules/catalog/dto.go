@@ -5,7 +5,7 @@ import "time"
 type CreateProductRequest struct {
 	Name           string    `json:"nombre" binding:"required,min=1,max=100"`
 	Description    string    `json:"descripcion" binding:"omitempty"`
-	ImageURL       string    `json:"imagen_url" binding:"omitempty,url,max=500"`
+	ImageURL       string    `json:"imagen_url" binding:"omitempty,max=500"`
 	Price          float64   `json:"precio" binding:"required,min=0"`
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"required"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
@@ -16,7 +16,7 @@ type CreateProductRequest struct {
 type UpdateProductRequest struct {
 	Name           string    `json:"nombre" binding:"omitempty,min=1,max=100"`
 	Description    string    `json:"descripcion" binding:"omitempty"`
-	ImageURL       string    `json:"imagen_url" binding:"omitempty,url,max=500"`
+	ImageURL       string    `json:"imagen_url" binding:"omitempty,max=500"`
 	Price          float64   `json:"precio" binding:"omitempty,min=0"`
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"omitempty"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
