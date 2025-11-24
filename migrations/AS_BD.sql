@@ -109,3 +109,32 @@ INSERT INTO categoria (nombre) VALUES ('Huevos');
 INSERT INTO categoria (nombre) VALUES ('Congelados');
 INSERT INTO categoria (nombre) VALUES ('Preparados listos para consumo');
 INSERT INTO categoria (nombre) VALUES ('Bebidas');
+
+-- Crear tienda de ejemplo con productos
+-- Usuario tienda /Contraseña: password123
+INSERT INTO usuario (nombre, correo, contrasena) VALUES 
+('Supermercado Test', 'tienda@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
+
+-- Asociar usuario con rol tienda (id_rol = 2)
+INSERT INTO usuario_rol (id_usuario, id_rol) VALUES 
+((SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 2);
+
+-- Crear perfil de tienda
+INSERT INTO tienda (id_tienda, area_responsable, direccion, telefono) VALUES 
+((SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 'Alimentos', 'Calle Principal 123', '1234567890');
+
+-- Crear productos: Leche, Pollo y Embutidos
+-- Leche (categoría: Lácteos y derivados, id_categoria = 2)
+INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
+('Leche', 'Leche entera fresca', '/uploads/images/ImagenLeche.jpg', 3500.00, CURRENT_DATE + INTERVAL '7 days', 50, 'En preparación', 
+ (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 2);
+
+-- Pollo (categoría: Carnes y proteínas frescas, id_categoria = 1)
+INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
+('Pollo', 'Pollo fresco entero', '/uploads/images/ImagenPollo.jpg', 12000.00, CURRENT_DATE + INTERVAL '3 days', 30, 'En preparación', 
+ (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 1);
+
+-- Embutidos (categoría: Carnes y proteínas frescas, id_categoria = 1)
+INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
+('Embutidos', 'Variedad de embutidos frescos', '/uploads/images/ImagenEmbutidos.jpg', 8500.00, CURRENT_DATE + INTERVAL '5 days', 25, 'En preparación', 
+ (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 1);
