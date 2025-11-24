@@ -40,6 +40,13 @@ CREATE TABLE administrador (
     permisos_especiales TEXT
 );
 
+CREATE TABLE categoria (
+    id_categoria SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE producto (
     id_producto SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -50,6 +57,7 @@ CREATE TABLE producto (
     stock INT DEFAULT 0 CHECK (stock >= 0),
     estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado')),
     id_tienda INT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
+    id_categoria INT REFERENCES categoria(id_categoria) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
@@ -92,3 +100,12 @@ CREATE TABLE resena (
 INSERT INTO rol (nombre) VALUES ('comprador');
 INSERT INTO rol (nombre) VALUES ('tienda');
 INSERT INTO rol (nombre) VALUES ('admin');
+
+INSERT INTO categoria (nombre) VALUES ('Carnes y proteínas frescas');
+INSERT INTO categoria (nombre) VALUES ('Lácteos y derivados');
+INSERT INTO categoria (nombre) VALUES ('Frutas y verduras');
+INSERT INTO categoria (nombre) VALUES ('Panadería y repostería fresca');
+INSERT INTO categoria (nombre) VALUES ('Huevos');
+INSERT INTO categoria (nombre) VALUES ('Congelados');
+INSERT INTO categoria (nombre) VALUES ('Preparados listos para consumo');
+INSERT INTO categoria (nombre) VALUES ('Bebidas');

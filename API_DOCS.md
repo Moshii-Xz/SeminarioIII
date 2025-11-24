@@ -168,7 +168,8 @@ fetch('/api/v1/products/upload-image', {
   "precio": "float64 (required, min=0)",
   "fecha_vencimiento": "time (required)",
   "stock": "int (optional, min=0)",
-  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado'. Default: 'En preparación')"
+  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado'. Default: 'En preparación')",
+  "id_categoria": "uint (optional)"
 }
 ```
 **Nota:** El `id_tienda` se asigna automáticamente desde el token JWT del usuario autenticado. Solo usuarios con rol "tienda" pueden crear productos.
@@ -183,7 +184,9 @@ fetch('/api/v1/products/upload-image', {
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
-    "estado": "string"
+    "estado": "string",
+    "id_categoria": "uint (optional)",
+    "nombre_categoria": "string (optional)"
   }
 }
 ```
@@ -201,7 +204,9 @@ fetch('/api/v1/products/upload-image', {
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
-    "estado": "string"
+    "estado": "string",
+    "id_categoria": "uint (optional)",
+    "nombre_categoria": "string (optional)"
   }
 }
 ```
@@ -216,7 +221,8 @@ fetch('/api/v1/products/upload-image', {
   "precio": "float64 (optional)",
   "fecha_vencimiento": "time (optional)",
   "stock": "int (optional)",
-  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado')"
+  "estado": "string (optional, values: 'En preparación', 'Listo para recoger', 'Entregado')",
+  "id_categoria": "uint (optional)"
 }
 ```
 **Response:**
@@ -230,7 +236,9 @@ fetch('/api/v1/products/upload-image', {
     "precio": "float64",
     "fecha_vencimiento": "time",
     "stock": "int",
-    "estado": "string"
+    "estado": "string",
+    "id_categoria": "uint (optional)",
+    "nombre_categoria": "string (optional)"
   }
 }
 ```

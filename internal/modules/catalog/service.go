@@ -47,6 +47,7 @@ func (s *Service) Create(req CreateProductRequest, storeID uint) (*domain.Produc
 		Stock:          req.Stock,
 		Status:        status,
 		StoreID:       storeID, // Usar el storeID del token JWT
+		CategoryID:    req.CategoryID,
 	}
 
 	if err := s.repo.Create(product); err != nil {
@@ -106,12 +107,26 @@ func (s *Service) Update(id uint, req UpdateProductRequest, storeID uint) (*doma
 		}
 		product.Status = req.Status
 	}
+	// Manejar actualización de categoría (puede ser nil para eliminar la categoría)
+	if req.CategoryID != nil {
+		product.CategoryID = req.CategoryID
+	} else {
+		// Si se envía explícitamente null, eliminar la categoría
+		// Pero como es omitempty, solo se actualiza si viene en el request
+		// Por ahora, solo actualizamos si viene un valor
+	}
 
 	if err := s.repo.Update(product); err != nil {
 		return nil, fmt.Errorf("error updating product: %w", err)
 	}
 
-	return product, nil
+	// Recargar el producto con la categoría actualizada
+	updatedProduct, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("error reloading product: %w", err)
+	}
+
+	return updatedProduct, nil
 }
 
 func (s *Service) Delete(id uint, storeID uint) error {
@@ -140,7 +155,7 @@ func (s *Service) List(page, limit int) ([]domain.Product, int64, error) {
 }
 
 func (s *Service) ToResponse(product *domain.Product) ProductResponse {
-	return ProductResponse{
+	response := ProductResponse{
 		ID:             product.ID,
 		Name:           product.Name,
 		Description:    product.Description,
@@ -149,5 +164,12 @@ func (s *Service) ToResponse(product *domain.Product) ProductResponse {
 		ExpirationDate: product.ExpirationDate,
 		Stock:          product.Stock,
 		Status:         product.Status,
+		CategoryID:     product.CategoryID,
 	}
+	
+	if product.Category != nil {
+		response.CategoryName = &product.Category.Name
+	}
+	
+	return response
 }

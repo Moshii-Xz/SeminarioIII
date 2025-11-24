@@ -20,9 +20,11 @@ type Product struct {
 	Stock          int       `gorm:"column:stock;default:0;check:stock >= 0"`
 	Status      string    `gorm:"column:estado;type:varchar(50);default:En preparación"`
 
-	// Foreign Key
-	StoreID uint   `gorm:"column:id_tienda;not null"`
-	Store   Store `gorm:"foreignKey:StoreID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	// Foreign Keys
+	StoreID    uint     `gorm:"column:id_tienda;not null"`
+	Store      Store    `gorm:"foreignKey:StoreID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	CategoryID *uint    `gorm:"column:id_categoria"`
+	Category   *Category `gorm:"foreignKey:CategoryID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func (Product) TableName() string {

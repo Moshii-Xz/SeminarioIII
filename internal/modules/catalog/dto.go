@@ -10,6 +10,7 @@ type CreateProductRequest struct {
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"required"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
 	Status         string    `json:"estado" binding:"omitempty"`
+	CategoryID     *uint     `json:"id_categoria" binding:"omitempty"`
 	StoreID        uint      `json:"id_tienda" binding:"-"` // Se ignora si viene en el request, se obtiene del token JWT
 }
 
@@ -21,6 +22,7 @@ type UpdateProductRequest struct {
 	ExpirationDate time.Time `json:"fecha_vencimiento" binding:"omitempty"`
 	Stock          int       `json:"stock" binding:"omitempty,min=0"`
 	Status         string    `json:"estado" binding:"omitempty"`
+	CategoryID     *uint     `json:"id_categoria" binding:"omitempty"`
 }
 
 type ProductResponse struct {
@@ -32,6 +34,8 @@ type ProductResponse struct {
 	ExpirationDate time.Time `json:"fecha_vencimiento"`
 	Stock          int       `json:"stock"`
 	Status         string    `json:"estado"`
+	CategoryID     *uint     `json:"id_categoria,omitempty"`
+	CategoryName   *string   `json:"nombre_categoria,omitempty"`
 }
 
 type ProductListResponse struct {

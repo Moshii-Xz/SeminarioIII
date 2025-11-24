@@ -22,7 +22,7 @@ func (r *Repository) Create(product *domain.Product) error {
 
 func (r *Repository) FindByID(id uint) (*domain.Product, error) {
 	var product domain.Product
-	err := r.db.First(&product, id).Error
+	err := r.db.Preload("Category").First(&product, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("product not found")
@@ -34,7 +34,18 @@ func (r *Repository) FindByID(id uint) (*domain.Product, error) {
 }
 
 func (r *Repository) Update(product *domain.Product) error {
-	return r.db.Save(product).Error
+	// Usar Select para especificar explícitamente qué campos actualizar
+	// Esto asegura que los campos puntero se actualicen correctamente
+	return r.db.Model(product).Select(
+		"nombre",
+		"descripcion",
+		"imagen_url",
+		"precio",
+		"fecha_vencimiento",
+		"stock",
+		"estado",
+		"id_categoria",
+	).Updates(product).Error
 }
 
 func (r *Repository) Delete(id uint) error {
@@ -49,7 +60,7 @@ func (r *Repository) List(limit, offset int) ([]domain.Product, int64, error) {
 		return nil, 0, err
 	}
 
-	err := r.db.Limit(limit).Offset(offset).Find(&products).Error
+	err := r.db.Preload("Category").Limit(limit).Offset(offset).Find(&products).Error
 	return products, total, err
 }
 
