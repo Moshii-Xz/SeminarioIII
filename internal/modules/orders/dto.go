@@ -15,7 +15,8 @@ type OrderItemRequest struct {
 }
 
 type UpdateOrderRequest struct {
-	StoreID *uint `json:"store_id" binding:"omitempty"`
+	StoreID *uint  `json:"store_id" binding:"omitempty"`
+	Status  string `json:"estado" binding:"omitempty,oneof=En preparación Listo para recoger Entregado"`
 }
 
 type AddOrderItemRequest struct {
@@ -42,6 +43,7 @@ type OrderResponse struct {
 	ClientID uint                `json:"client_id"`
 	StoreID *uint               `json:"store_id,omitempty"`
 	Date     time.Time           `json:"date"`
+	Status   string              `json:"estado"`
 	Items    []OrderItemResponse `json:"items"`
 	Total    float64             `json:"total"`
 }

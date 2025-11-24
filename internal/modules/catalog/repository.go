@@ -41,9 +41,11 @@ func (r *Repository) Update(product *domain.Product) error {
 		"descripcion",
 		"imagen_url",
 		"precio",
+		"precio_original",
+		"precio_descuento",
 		"fecha_vencimiento",
 		"stock",
-		"estado",
+		"etiqueta",
 		"id_categoria",
 	).Updates(product).Error
 }

@@ -52,10 +52,12 @@ CREATE TABLE producto (
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
     imagen_url VARCHAR(500),
-    precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
+    precio NUMERIC(10,2) CHECK (precio >= 0),
+    precio_original NUMERIC(10,2) CHECK (precio_original >= 0),
+    precio_descuento NUMERIC(10,2) CHECK (precio_descuento >= 0),
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),
-    estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado')),
+    etiqueta VARCHAR(50) CHECK (etiqueta IN ('Oferta', 'Donación')),
     id_tienda INT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
     id_categoria INT REFERENCES categoria(id_categoria) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -67,7 +69,8 @@ CREATE TABLE compra (
     id_compra SERIAL PRIMARY KEY,
     id_cliente INT NOT NULL REFERENCES cliente(id_cliente),
     id_tienda INT REFERENCES tienda(id_tienda),
-    fecha_compra DATE DEFAULT CURRENT_DATE NOT NULL
+    fecha_compra DATE DEFAULT CURRENT_DATE NOT NULL,
+    estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado'))
 );
 
 CREATE TABLE detalle_compra (
@@ -124,17 +127,17 @@ INSERT INTO tienda (id_tienda, area_responsable, direccion, telefono) VALUES
 ((SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 'Alimentos', 'Calle Principal 123', '1234567890');
 
 -- Crear productos: Leche, Pollo y Embutidos
--- Leche (categoría: Lácteos y derivados, id_categoria = 2)
-INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
-('Leche', 'Leche entera fresca', '/uploads/images/ImagenLeche.jpg', 3500.00, CURRENT_DATE + INTERVAL '7 days', 50, 'En preparación', 
+-- Leche (categoría: Lácteos y derivados, id_categoria = 2) - Etiqueta: Oferta
+INSERT INTO producto (nombre, descripcion, imagen_url, precio_original, precio_descuento, fecha_vencimiento, stock, etiqueta, id_tienda, id_categoria) VALUES 
+('Leche', 'Leche entera fresca', '/uploads/images/ImagenLeche.jpg', 3500.00, 2500.00, CURRENT_DATE + INTERVAL '7 days', 50, 'Oferta', 
  (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 2);
 
--- Pollo (categoría: Carnes y proteínas frescas, id_categoria = 1)
-INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
-('Pollo', 'Pollo fresco entero', '/uploads/images/ImagenPollo.jpg', 12000.00, CURRENT_DATE + INTERVAL '3 days', 30, 'En preparación', 
+-- Pollo (categoría: Carnes y proteínas frescas, id_categoria = 1) - Etiqueta: Donación
+INSERT INTO producto (nombre, descripcion, imagen_url, fecha_vencimiento, stock, etiqueta, id_tienda, id_categoria) VALUES 
+('Pollo', 'Pollo fresco entero', '/uploads/images/ImagenPollo.jpg', CURRENT_DATE + INTERVAL '3 days', 30, 'Donación', 
  (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 1);
 
--- Embutidos (categoría: Carnes y proteínas frescas, id_categoria = 1)
-INSERT INTO producto (nombre, descripcion, imagen_url, precio, fecha_vencimiento, stock, estado, id_tienda, id_categoria) VALUES 
-('Embutidos', 'Variedad de embutidos frescos', '/uploads/images/ImagenEmbutidos.jpg', 8500.00, CURRENT_DATE + INTERVAL '5 days', 25, 'En preparación', 
+-- Embutidos (categoría: Carnes y proteínas frescas, id_categoria = 1) - Etiqueta: Oferta
+INSERT INTO producto (nombre, descripcion, imagen_url, precio_original, precio_descuento, fecha_vencimiento, stock, etiqueta, id_tienda, id_categoria) VALUES 
+('Embutidos', 'Variedad de embutidos frescos', '/uploads/images/ImagenEmbutidos.jpg', 8500.00, 6000.00, CURRENT_DATE + INTERVAL '5 days', 25, 'Oferta', 
  (SELECT id_usuario FROM usuario WHERE correo = 'tienda@test.com'), 1);

@@ -21,21 +21,33 @@ func (s *Service) Create(req CreateProductRequest, storeID uint) (*domain.Produc
 		return nil, errors.New("la fecha de vencimiento no puede ser en el pasado")
 	}
 
-	status := req.Status
-	if status == "" {
-		status = "En preparación" // Default value
-	} else {
-		validStatuses := []string{"En preparación", "Listo para recoger", "Entregado"}
-		valid := false
-		for _, vs := range validStatuses {
-			if status == vs {
-				valid = true
-				break
+	// Validar precios según la etiqueta
+	if req.Badge != nil {
+		if *req.Badge == "Oferta" {
+			// Productos en oferta deben tener precio_original y precio_descuento
+			if req.OriginalPrice == nil || req.DiscountPrice == nil {
+				return nil, errors.New("productos con etiqueta 'Oferta' deben tener precio_original y precio_descuento")
+			}
+			if *req.OriginalPrice <= 0 || *req.DiscountPrice <= 0 {
+				return nil, errors.New("precio_original y precio_descuento deben ser mayores a 0")
+			}
+			if *req.DiscountPrice >= *req.OriginalPrice {
+				return nil, errors.New("precio_descuento debe ser menor que precio_original")
+			}
+		} else if *req.Badge == "Donación" {
+			// Productos de donación no deben tener precio
+			if req.Price != nil || req.OriginalPrice != nil || req.DiscountPrice != nil {
+				return nil, errors.New("productos con etiqueta 'Donación' no deben tener precio")
 			}
 		}
-		if !valid {
-			return nil, errors.New("estado inválido. Debe ser uno de: 'En preparación', 'Listo para recoger', 'Entregado'")
+	} else {
+		// Productos sin etiqueta deben tener precio normal
+		if req.Price == nil || *req.Price <= 0 {
+			return nil, errors.New("productos sin etiqueta deben tener un precio válido mayor a 0")
 		}
+		// Asegurar que no tengan precios de oferta
+		req.OriginalPrice = nil
+		req.DiscountPrice = nil
 	}
 
 	product := &domain.Product{
@@ -43,9 +55,11 @@ func (s *Service) Create(req CreateProductRequest, storeID uint) (*domain.Produc
 		Description:    req.Description,
 		ImageURL:       req.ImageURL,
 		Price:          req.Price,
+		OriginalPrice:  req.OriginalPrice,
+		DiscountPrice:  req.DiscountPrice,
 		ExpirationDate: req.ExpirationDate,
 		Stock:          req.Stock,
-		Status:        status,
+		Badge:          req.Badge,
 		StoreID:       storeID, // Usar el storeID del token JWT
 		CategoryID:    req.CategoryID,
 	}
@@ -81,9 +95,51 @@ func (s *Service) Update(id uint, req UpdateProductRequest, storeID uint) (*doma
 	if req.ImageURL != "" {
 		product.ImageURL = req.ImageURL
 	}
-	if req.Price > 0 {
-		product.Price = req.Price
+	
+	// Determinar la etiqueta final (la nueva o la existente)
+	finalBadge := product.Badge
+	if req.Badge != nil {
+		finalBadge = req.Badge
 	}
+	
+	// Validar y actualizar precios según la etiqueta
+	if finalBadge != nil {
+		if *finalBadge == "Oferta" {
+			// Productos en oferta deben tener precio_original y precio_descuento
+			if req.OriginalPrice != nil {
+				product.OriginalPrice = req.OriginalPrice
+			}
+			if req.DiscountPrice != nil {
+				product.DiscountPrice = req.DiscountPrice
+			}
+			// Validar que ambos precios estén presentes y sean válidos
+			if product.OriginalPrice == nil || product.DiscountPrice == nil {
+				return nil, errors.New("productos con etiqueta 'Oferta' deben tener precio_original y precio_descuento")
+			}
+			if *product.OriginalPrice <= 0 || *product.DiscountPrice <= 0 {
+				return nil, errors.New("precio_original y precio_descuento deben ser mayores a 0")
+			}
+			if *product.DiscountPrice >= *product.OriginalPrice {
+				return nil, errors.New("precio_descuento debe ser menor que precio_original")
+			}
+			// Limpiar precio normal
+			product.Price = nil
+		} else if *finalBadge == "Donación" {
+			// Productos de donación no deben tener precio
+			product.Price = nil
+			product.OriginalPrice = nil
+			product.DiscountPrice = nil
+		}
+	} else {
+		// Productos sin etiqueta deben tener precio normal
+		if req.Price != nil {
+			product.Price = req.Price
+		}
+		// Limpiar precios de oferta
+		product.OriginalPrice = nil
+		product.DiscountPrice = nil
+	}
+	
 	if !req.ExpirationDate.IsZero() {
 		if req.ExpirationDate.Before(time.Now()) {
 			return nil, errors.New("la fecha de vencimiento no puede ser en el pasado")
@@ -93,19 +149,9 @@ func (s *Service) Update(id uint, req UpdateProductRequest, storeID uint) (*doma
 	if req.Stock >= 0 {
 		product.Stock = req.Stock
 	}
-	if req.Status != "" {
-		validStatuses := []string{"En preparación", "Listo para recoger", "Entregado"}
-		valid := false
-		for _, vs := range validStatuses {
-			if req.Status == vs {
-				valid = true
-				break
-			}
-		}
-		if !valid {
-			return nil, errors.New("estado inválido. Debe ser uno de: 'En preparación', 'Listo para recoger', 'Entregado'")
-		}
-		product.Status = req.Status
+	// Actualizar etiqueta (badge) si se proporciona
+	if req.Badge != nil {
+		product.Badge = req.Badge
 	}
 	// Manejar actualización de categoría (puede ser nil para eliminar la categoría)
 	if req.CategoryID != nil {
@@ -161,9 +207,11 @@ func (s *Service) ToResponse(product *domain.Product) ProductResponse {
 		Description:    product.Description,
 		ImageURL:       product.ImageURL,
 		Price:          product.Price,
+		OriginalPrice:  product.OriginalPrice,
+		DiscountPrice:  product.DiscountPrice,
 		ExpirationDate: product.ExpirationDate,
 		Stock:          product.Stock,
-		Status:         product.Status,
+		Badge:          product.Badge,
 		CategoryID:     product.CategoryID,
 	}
 	
