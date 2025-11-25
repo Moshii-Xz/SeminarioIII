@@ -21,12 +21,34 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateProductRequest
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// Cambiado a ShouldBind para soportar multipart/form-data
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "invalid request",
 			"message": err.Error(),
 		})
 		return
+	}
+
+	// Manejo de subida de imagen
+	file, err := c.FormFile("imagen")
+	if err == nil {
+		// Generar nombre único para el archivo
+		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), filepath.Base(file.Filename))
+		uploadPath := filepath.Join("uploads", "images", filename)
+
+		// Guardar el archivo
+		if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "failed to save image",
+				"message": err.Error(),
+			})
+			return
+		}
+
+		// Actualizar URL de la imagen en el request
+		// Se guarda la ruta relativa accesible públicamente (asumiendo que se sirve /uploads)
+		req.ImageURL = "/uploads/images/" + filename
 	}
 
 	// Obtener el userID del token JWT (establecido por el middleware de autenticación)
@@ -175,7 +197,7 @@ func (h *Handler) List(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	products, total, err := h.service.List(page, limit)
+	products, storeNames, total, err := h.service.List(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -183,7 +205,12 @@ func (h *Handler) List(c *gin.Context) {
 
 	responses := make([]ProductResponse, len(products))
 	for i, p := range products {
-		responses[i] = h.service.ToResponse(&p)
+		resp := h.service.ToResponse(&p)
+		// Asignar el nombre de la tienda desde el mapa
+		if name, ok := storeNames[p.StoreID]; ok {
+			resp.StoreName = name
+		}
+		responses[i] = resp
 	}
 
 	c.JSON(http.StatusOK, ProductListResponse{
@@ -236,7 +263,7 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	// Generate unique filename
 	timestamp := time.Now().Unix()
 	filename := fmt.Sprintf("%d_%s", timestamp, file.Filename)
-	
+
 	// Save file to uploads/images/ directory
 	// In Docker, working directory is /root/, so we use relative path
 	uploadPath := filepath.Join("uploads", "images", filename)

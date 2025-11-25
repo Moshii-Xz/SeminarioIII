@@ -271,4 +271,3 @@ func (s *Service) ToResponse(store *domain.Store, user *domain.User) *StoreRespo
 		CreatedAt: user.CreatedAt,
 	}
 }
-
