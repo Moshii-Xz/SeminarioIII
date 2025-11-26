@@ -6,6 +6,7 @@ import "time"
 #CreateUserRequest; body para POST /users
 */
 type CreateUserRequest struct {
+	ID       uint   `json:"id_usuario"` // Optional: if provided, uses this ID
 	Name     string `json:"nombre" binding:"required,min=2,max=100"`
 	Email    string `json:"correo" binding:"required,email"`
 	Password string `json:"contrasena" binding:"required,min=6"`

@@ -66,9 +66,10 @@ func (s *Service) Create(req CreateUserRequest) (*domain.User, error) {
 	}()
 
 	user := &domain.User{
+		ID:       req.ID,
 		Name:     req.Name,
 		Email:    req.Email,
-		Password:  hashedPass,
+		Password: hashedPass,
 	}
 
 	if err := tx.Create(user).Error; err != nil {

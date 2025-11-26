@@ -239,6 +239,7 @@ func (s *Service) ToResponse(product *domain.Product) ProductResponse {
 		Stock:          product.Stock,
 		Badge:          product.Badge,
 		CategoryID:     product.CategoryID,
+		StoreID:        product.StoreID,
 	}
 
 	if product.Category != nil {

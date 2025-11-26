@@ -7,7 +7,7 @@ CREATE TABLE metodo_pago (
     nombre VARCHAR(50) UNIQUE NOT NULL
 );
 CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
+    id_usuario BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
     contrasena VARCHAR(100) NOT NULL,
@@ -17,26 +17,26 @@ CREATE TABLE usuario (
 );
 
 CREATE TABLE usuario_rol (
-    id_usuario INT REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_usuario BIGINT REFERENCES usuario(id_usuario) ON DELETE CASCADE,
     id_rol INT REFERENCES rol(id_rol) ON DELETE CASCADE,
     PRIMARY KEY (id_usuario, id_rol)
 );
 
 CREATE TABLE cliente (
-    id_cliente INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_cliente BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
     direccion VARCHAR(150),
     telefono VARCHAR(20)
 );
 
 CREATE TABLE tienda (
-    id_tienda INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_tienda BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
     area_responsable VARCHAR(100),
     direccion VARCHAR(200),
     telefono VARCHAR(20)
 );
 
 CREATE TABLE administrador (
-    id_admin INT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    id_admin BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
     permisos_especiales TEXT
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE producto (
     fecha_vencimiento DATE NOT NULL,
     stock INT DEFAULT 0 CHECK (stock >= 0),
     etiqueta VARCHAR(50) CHECK (etiqueta IN ('Oferta', 'Donación')),
-    id_tienda INT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
+    id_tienda BIGINT NOT NULL REFERENCES tienda(id_tienda) ON DELETE CASCADE,
     id_categoria INT REFERENCES categoria(id_categoria) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -67,10 +67,12 @@ CREATE TABLE producto (
 
 CREATE TABLE compra (
     id_compra SERIAL PRIMARY KEY,
-    id_cliente INT NOT NULL REFERENCES cliente(id_cliente),
-    id_tienda INT REFERENCES tienda(id_tienda),
+    id_cliente BIGINT NOT NULL REFERENCES cliente(id_cliente),
+    id_tienda BIGINT REFERENCES tienda(id_tienda),
     fecha_compra DATE DEFAULT CURRENT_DATE NOT NULL,
-    estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado'))
+    estado VARCHAR(50) DEFAULT 'En preparación' CHECK (estado IN ('En preparación', 'Listo para recoger', 'Entregado')),
+    metodo_pago VARCHAR(50),
+    metodo_entrega VARCHAR(50)
 );
 
 CREATE TABLE detalle_compra (
@@ -92,7 +94,7 @@ CREATE TABLE pago (
 CREATE TABLE resena (
     id_resena SERIAL PRIMARY KEY,
     id_producto INT NOT NULL REFERENCES producto(id_producto) ON DELETE CASCADE,
-    id_cliente INT NOT NULL REFERENCES cliente(id_cliente) ON DELETE CASCADE,
+    id_cliente BIGINT NOT NULL REFERENCES cliente(id_cliente) ON DELETE CASCADE,
     calificacion INT NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
     comentario TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

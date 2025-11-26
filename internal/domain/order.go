@@ -5,11 +5,12 @@ import (
 )
 
 type Order struct {
-	ID       uint      `gorm:"column:id_compra;primaryKey;autoIncrement"`
-	ClientID uint      `gorm:"column:id_cliente;not null"`
-	StoreID *uint     `gorm:"column:id_tienda"`
-	Date     time.Time `gorm:"column:fecha_compra;default:CURRENT_DATE;not null"`
-	Status   string    `gorm:"column:estado;type:varchar(50);default:En preparación"`
+	ID            uint      `gorm:"column:id_compra;primaryKey;autoIncrement"`
+	ClientID      uint      `gorm:"column:id_cliente;not null"`
+	StoreID       *uint     `gorm:"column:id_tienda"`
+	Date          time.Time `gorm:"column:fecha_compra;default:CURRENT_DATE;not null"`
+	Status        string    `gorm:"column:estado;type:varchar(50);default:En preparación"`
+	PaymentMethod string    `gorm:"column:metodo_pago;type:varchar(50)"`
 
 	// Relaciones
 	Details []OrderDetail `gorm:"foreignKey:OrderID;references:ID"`

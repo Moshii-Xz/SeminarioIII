@@ -16,6 +16,7 @@ COPY . .
 # Compilar la aplicación
 RUN CGO_ENABLED=0 GOOS=linux go build -o expirapp cmd/api/main.go
 
+
 # Final stage
 FROM alpine:latest
 

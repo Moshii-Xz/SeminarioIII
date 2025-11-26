@@ -3,9 +3,10 @@ package orders
 import "time"
 
 type CreateOrderRequest struct {
-	ClientID uint               `json:"client_id" binding:"required"`
-	StoreID *uint              `json:"store_id" binding:"omitempty"`
-	Items    []OrderItemRequest `json:"items" binding:"required,min=1,dive"`
+	ClientID      uint               `json:"client_id" binding:"required"`
+	StoreID       *uint              `json:"store_id" binding:"omitempty"`
+	PaymentMethod string             `json:"payment_method" binding:"omitempty"`
+	Items         []OrderItemRequest `json:"items" binding:"required,min=1,dive"`
 }
 
 type OrderItemRequest struct {
@@ -39,13 +40,14 @@ type OrderItemResponse struct {
 }
 
 type OrderResponse struct {
-	ID       uint                `json:"id"`
-	ClientID uint                `json:"client_id"`
-	StoreID *uint               `json:"store_id,omitempty"`
-	Date     time.Time           `json:"date"`
-	Status   string              `json:"estado"`
-	Items    []OrderItemResponse `json:"items"`
-	Total    float64             `json:"total"`
+	ID            uint                `json:"id"`
+	ClientID      uint                `json:"client_id"`
+	StoreID       *uint               `json:"store_id,omitempty"`
+	Date          time.Time           `json:"date"`
+	Status        string              `json:"estado"`
+	PaymentMethod string              `json:"payment_method,omitempty"`
+	Items         []OrderItemResponse `json:"items"`
+	Total         float64             `json:"total"`
 }
 
 type OrderListResponse struct {

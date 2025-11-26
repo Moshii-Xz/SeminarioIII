@@ -43,10 +43,11 @@ func (s *Service) Create(req CreateOrderRequest) (*domain.Order, error) {
 	}
 
 	order := &domain.Order{
-		ClientID: req.ClientID,
-		StoreID: req.StoreID,
-		Date:     time.Now(),
-		Details:  orderDetails,
+		ClientID:      req.ClientID,
+		StoreID:       req.StoreID,
+		Date:          time.Now(),
+		PaymentMethod: req.PaymentMethod,
+		Details:       orderDetails,
 	}
 
 	if err := s.repo.CreateWithItems(order, orderDetails); err != nil {
@@ -250,11 +251,13 @@ func (s *Service) ToResponse(order *domain.Order) OrderResponse {
 	}
 
 	return OrderResponse{
-		ID:       order.ID,
-		ClientID: order.ClientID,
-		StoreID: order.StoreID,
-		Date:     order.Date,
-		Items:    items,
-		Total:    total,
+		ID:            order.ID,
+		ClientID:      order.ClientID,
+		StoreID:       order.StoreID,
+		Date:          order.Date,
+		Status:        order.Status,
+		PaymentMethod: order.PaymentMethod,
+		Items:         items,
+		Total:         total,
 	}
 }

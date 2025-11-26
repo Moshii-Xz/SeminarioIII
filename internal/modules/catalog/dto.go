@@ -44,6 +44,7 @@ type ProductResponse struct {
 	// Status removido - ahora está en pedidos (orders)
 	CategoryName *string `json:"nombre_categoria,omitempty"`
 	StoreName    string  `json:"nombre_tienda,omitempty"`
+	StoreID      uint    `json:"id_tienda"`
 }
 
 type ProductListResponse struct {

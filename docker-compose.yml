@@ -12,6 +12,7 @@ services:
       - DB_NAME=expirapp
       - DB_SSLMODE=disable
       - DB_TIMEZONE=UTC
+      - MEMORY_LIMIT=512m
     volumes:
       - ./uploads:/root/uploads
     depends_on:
