@@ -1,4 +1,4 @@
-# Guía de Despliegue con Docker (Expirapp)
+# Guía de Despliegue con Docker (VenciTrack)
 
 Esta guía explica cómo levantar todo el entorno de desarrollo (Backend + Base de Datos) utilizando Docker. Esta es la forma más recomendada para asegurar que todos trabajen en el mismo entorno.
 
@@ -17,15 +17,15 @@ docker-compose up --build
 Este comando hará lo siguiente automáticamente:
 1.  Compilará el código de Go en un contenedor aislado.
 2.  Descargará e iniciará una base de datos PostgreSQL.
-3.  Creará la base de datos `expirapp` y ejecutará automáticamente el script de migración (`migrations/AS_BD.sql`) para crear las tablas.
+3.  Creará la base de datos `vencitrack` y ejecutará automáticamente el script de migración (`migrations/AS_BD.sql`) para crear las tablas.
 4.  Conectará el backend con la base de datos.
-5.  Expondrá la API en `http://localhost:8080`.
+5.  Expondrá la API en `http://localhost:8081`.
 
 ## 3. Verificar que funciona
 
 Una vez que veas logs indicando que el servidor ha iniciado, abre tu navegador o Postman y visita:
 
-`http://localhost:8080/health`
+`http://localhost:8081/health`
 
 Deberías recibir:
 ```json

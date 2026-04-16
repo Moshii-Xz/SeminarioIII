@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mordmora/expirapp/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
 )
 
 type Service struct {

@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mordmora/expirapp/internal/domain"
-	"github.com/mordmora/expirapp/internal/modules/catalog"
-	"github.com/mordmora/expirapp/internal/modules/orders"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/catalog"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/orders"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

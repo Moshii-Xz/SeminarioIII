@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mordmora/expirapp/internal/platform/auth"
+	"github.com/Moshii-Xz/SeminarioIII/internal/platform/auth"
 )
 
 func Auth() gin.HandlerFunc {

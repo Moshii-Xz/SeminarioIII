@@ -1,9 +1,9 @@
-# Expirapp - AI Agent Instructions
+# VenciTrack - AI Agent Instructions
 
 ## Project Overview
-Expirapp is a Go-based REST API for managing product expiration tracking with e-commerce capabilities. Built with **GORM**, **Gin** (framework implied by structure), and **PostgreSQL**.
+VenciTrack is a Go-based REST API for managing product expiration tracking with e-commerce capabilities. Built with **GORM**, **Gin** (framework implied by structure), and **PostgreSQL**.
 
-**Module path**: `github.com/mordmora/expirapp`
+**Module path**: `github.com/Moshii-Xz/SeminarioIII`
 
 ## Architecture: Layered Module Design
 
@@ -163,7 +163,7 @@ go get -u ./...
 go run cmd/api/main.go
 
 # Build binary
-go build -o expirapp.exe cmd/api/main.go
+go build -o vencitrack.exe cmd/api/main.go
 
 # Run with hot reload (if air is installed)
 air

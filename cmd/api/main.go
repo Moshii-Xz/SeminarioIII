@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mordmora/expirapp/internal/platform/database"
-	"github.com/mordmora/expirapp/internal/server"
+	"github.com/Moshii-Xz/SeminarioIII/internal/platform/database"
+	"github.com/Moshii-Xz/SeminarioIII/internal/server"
 )
 
 func getEnv(key, fallback string) string {
@@ -24,7 +24,7 @@ func main() {
 		Port:     port,
 		User:     getEnv("DB_USER", "postgres"),
 		Password: getEnv("DB_PASSWORD", "1234"),
-		DBName:   getEnv("DB_NAME", "expirapp"),
+		DBName:   getEnv("DB_NAME", "vencitrack"),
 		SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		TimeZone: getEnv("DB_TIMEZONE", "America/Bogota"),
 	})

@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Compilar la aplicación
-RUN CGO_ENABLED=0 GOOS=linux go build -o expirapp cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o vencitrack cmd/api/main.go
 
 
 # Final stage
@@ -23,7 +23,7 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copiar el binario desde el builder
-COPY --from=builder /app/expirapp .
+COPY --from=builder /app/vencitrack .
 
 # Crear directorio para uploads
 RUN mkdir -p uploads/images
@@ -32,4 +32,4 @@ RUN mkdir -p uploads/images
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD ["./expirapp"]
+CMD ["./vencitrack"]

@@ -14,14 +14,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mordmora/expirapp/internal/middleware"
-	"github.com/mordmora/expirapp/internal/modules/catalog"
-	"github.com/mordmora/expirapp/internal/modules/orders"
-	"github.com/mordmora/expirapp/internal/modules/payments"
-	"github.com/mordmora/expirapp/internal/modules/reports"
-	"github.com/mordmora/expirapp/internal/modules/reviews"
-	"github.com/mordmora/expirapp/internal/modules/stores"
-	"github.com/mordmora/expirapp/internal/modules/users"
+	"github.com/Moshii-Xz/SeminarioIII/internal/middleware"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/catalog"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/orders"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/payments"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/reports"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/reviews"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/stores"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/users"
 	"gorm.io/gorm"
 )
 

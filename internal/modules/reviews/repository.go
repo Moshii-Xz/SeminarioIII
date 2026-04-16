@@ -3,7 +3,7 @@ package reviews
 import (
 	"errors"
 
-	"github.com/mordmora/expirapp/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
 	"gorm.io/gorm"
 )
 

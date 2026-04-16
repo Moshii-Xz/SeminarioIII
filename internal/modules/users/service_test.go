@@ -3,8 +3,8 @@ package users_test
 import (
 	"testing"
 
-	"github.com/mordmora/expirapp/internal/domain"
-	"github.com/mordmora/expirapp/internal/modules/users"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/modules/users"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

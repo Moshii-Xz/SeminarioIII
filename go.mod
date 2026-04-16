@@ -1,4 +1,4 @@
-module github.com/mordmora/expirapp
+module github.com/Moshii-Xz/SeminarioIII
 
 go 1.24.0
 

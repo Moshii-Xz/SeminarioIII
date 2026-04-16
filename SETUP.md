@@ -1,4 +1,4 @@
-# Guía de Configuración del Backend (Expirapp)
+# Guía de Configuración del Backend (VenciTrack)
 
 Esta guía está diseñada para ayudar al equipo de frontend a levantar el servidor backend localmente de manera rápida y sencilla.
 
@@ -21,7 +21,7 @@ Por defecto, el código está configurado para usar:
 *   **Puerto**: `5432`
 *   **Usuario**: `postgres`
 *   **Contraseña**: `1234`
-*   **Nombre de BD**: `expirapp`
+*   **Nombre de BD**: `vencitrack`
 
 Si tu configuración local de PostgreSQL es diferente, deberás ajustar el archivo `cmd/api/main.go` o configurar tu base de datos para que coincida.
 
@@ -29,7 +29,7 @@ Si tu configuración local de PostgreSQL es diferente, deberás ajustar el archi
 
 ```sql
 -- 1. Crear la base de datos
-CREATE DATABASE expirapp;
+CREATE DATABASE vencitrack;
 
 -- 2. (Opcional) Si necesitas cambiar la contraseña del usuario postgres para que coincida con el código:
 -- ALTER USER postgres WITH PASSWORD '1234';
@@ -40,11 +40,11 @@ CREATE DATABASE expirapp;
 Debes ejecutar el script SQL que crea la estructura de la base de datos.
 
 1.  Ubica el archivo `migrations/AS_BD.sql` en este proyecto.
-2.  Ejecuta el contenido de ese archivo en tu base de datos `expirapp` usando tu herramienta preferida (pgAdmin, DBeaver, TablePlus, o línea de comandos).
+2.  Ejecuta el contenido de ese archivo en tu base de datos `vencitrack` usando tu herramienta preferida (pgAdmin, DBeaver, TablePlus, o línea de comandos).
 
 **Opción línea de comandos:**
 ```bash
-psql -U postgres -d expirapp -f migrations/AS_BD.sql
+psql -U postgres -d vencitrack -f migrations/AS_BD.sql
 ```
 
 O descomenta las lineas 
@@ -60,7 +60,7 @@ en el archivo main.go
 
 Una vez que la base de datos está lista, puedes iniciar el servidor.
 
-1.  Abre una terminal en la carpeta raíz del proyecto (`Expirapp`).
+1.  Abre una terminal en la carpeta raíz del proyecto (`VenciTrack`).
 2.  Descarga las dependencias:
     ```bash
     go mod download
@@ -91,7 +91,7 @@ Deberías recibir una respuesta JSON:
 
 **Error: "database connection failed"**
 *   Verifica que PostgreSQL esté corriendo.
-*   Verifica que la base de datos `expirapp` exista.
+*   Verifica que la base de datos `vencitrack` exista.
 *   Verifica que el usuario `postgres` y la contraseña `1234` sean correctos. Si tu contraseña es diferente, edita el archivo `cmd/api/main.go` línea 16:
     ```go
     Password: "TU_CONTRASEÑA_REAL",

@@ -1,6 +1,6 @@
-# Expirapp
+# VenciTrack
 
-Expirapp es una API REST en Go para gestion de caducidades, catalogo de productos y flujo de pedidos, con autenticacion JWT, carga de imagenes y modulos separados por dominio.
+VenciTrack es una API REST en Go para gestion de caducidades, catalogo de productos y flujo de pedidos, con autenticacion JWT, carga de imagenes y modulos separados por dominio.
 
 ## Resumen
 
@@ -41,7 +41,7 @@ Expirapp es una API REST en Go para gestion de caducidades, catalogo de producto
    - `DB_PORT` (por defecto `5432`)
    - `DB_USER` (por defecto `postgres`)
    - `DB_PASSWORD` (por defecto `1234`)
-   - `DB_NAME` (por defecto `expirapp`)
+   - `DB_NAME` (por defecto `vencitrack`)
    - `DB_SSLMODE` (por defecto `disable`)
    - `DB_TIMEZONE` (por defecto `America/Bogota`)
 4. Levanta PostgreSQL y ejecuta las migraciones en `migrations/AS_BD.sql`.

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mordmora/expirapp/internal/domain"
-	"github.com/mordmora/expirapp/internal/platform/auth"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/platform/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 

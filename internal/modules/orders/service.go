@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mordmora/expirapp/internal/domain"
-	catalogRepo "github.com/mordmora/expirapp/internal/modules/catalog"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
+	catalogRepo "github.com/Moshii-Xz/SeminarioIII/internal/modules/catalog"
 )
 
 type Service struct {

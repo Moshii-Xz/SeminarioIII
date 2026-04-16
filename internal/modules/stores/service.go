@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mordmora/expirapp/internal/domain"
+	"github.com/Moshii-Xz/SeminarioIII/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )

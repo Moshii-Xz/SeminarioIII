@@ -1,4 +1,4 @@
-# Arquitectura de Expirapp
+# Arquitectura de VenciTrack
 
 Este proyecto sigue una arquitectura modular por dominio. La idea central es mantener cada funcionalidad con su propia ruta de ejecucion: handler, service y repository.
 
