@@ -1,0 +1,150 @@
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor #F9FBFF
+  BorderColor #2E3A59
+  FontColor #1F2937
+}
+
+title VenciTrack - Diagrama de Base de Datos
+
+entity "usuario" as usuario {
+  *id_usuario : BIGSERIAL <<PK>>
+  --
+  nombre : varchar(100)
+  correo : varchar(100) <<UQ>>
+  contrasena : varchar(100)
+  created_at : timestamp
+  updated_at : timestamp
+  deleted_at : timestamp
+}
+
+entity "rol" as rol {
+  *id_rol : serial <<PK>>
+  --
+  nombre : varchar(50) <<UQ>>
+}
+
+entity "usuario_rol" as usuario_rol {
+  *id_usuario : bigint <<PK, FK>>
+  *id_rol : int <<PK, FK>>
+}
+
+entity "cliente" as cliente {
+  *id_cliente : bigint <<PK, FK>>
+  --
+  direccion : varchar(150)
+  telefono : varchar(20)
+}
+
+entity "tienda" as tienda {
+  *id_tienda : bigint <<PK, FK>>
+  --
+  area_responsable : varchar(100)
+  direccion : varchar(200)
+  telefono : varchar(20)
+}
+
+entity "administrador" as administrador {
+  *id_admin : bigint <<PK, FK>>
+  --
+  permisos_especiales : text
+}
+
+entity "categoria" as categoria {
+  *id_categoria : serial <<PK>>
+  --
+  nombre : varchar(100) <<UQ>>
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "producto" as producto {
+  *id_producto : serial <<PK>>
+  --
+  nombre : varchar(100)
+  descripcion : text
+  imagen_url : varchar(500)
+  precio : numeric(10,2)
+  precio_original : numeric(10,2)
+  precio_descuento : numeric(10,2)
+  fecha_vencimiento : date
+  stock : int
+  etiqueta : varchar(50)
+  id_tienda : bigint <<FK>>
+  id_categoria : int <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+  deleted_at : timestamp
+}
+
+entity "compra" as compra {
+  *id_compra : serial <<PK>>
+  --
+  id_cliente : bigint <<FK>>
+  id_tienda : bigint <<FK>>
+  fecha_compra : date
+  estado : varchar(50)
+  metodo_pago : varchar(50)
+  metodo_entrega : varchar(50)
+}
+
+entity "detalle_compra" as detalle_compra {
+  *id_detalle : serial <<PK>>
+  --
+  id_compra : int <<FK>>
+  id_producto : int <<FK>>
+  cantidad : int
+  precio_unitario : numeric(10,2)
+}
+
+entity "metodo_pago" as metodo_pago {
+  *id_metodo_pago : serial <<PK>>
+  --
+  nombre : varchar(50) <<UQ>>
+}
+
+entity "pago" as pago {
+  *id_pago : serial <<PK>>
+  --
+  id_compra : int <<FK>>
+  id_metodo_pago : int <<FK>>
+  monto : numeric(10,2)
+  fecha_pago : date
+}
+
+entity "resena" as resena {
+  *id_resena : serial <<PK>>
+  --
+  id_producto : int <<FK>>
+  id_cliente : bigint <<FK>>
+  calificacion : int
+  comentario : text
+  created_at : timestamp
+  updated_at : timestamp
+  deleted_at : timestamp
+}
+
+usuario ||--o{ usuario_rol
+rol ||--o{ usuario_rol
+usuario ||--|| cliente
+usuario ||--|| tienda
+usuario ||--|| administrador
+
+tienda ||--o{ producto
+categoria ||--o{ producto
+
+cliente ||--o{ compra
+tienda ||--o{ compra
+compra ||--o{ detalle_compra
+producto ||--o{ detalle_compra
+
+compra ||--o{ pago
+metodo_pago ||--o{ pago
+
+producto ||--o{ resena
+cliente ||--o{ resena
+
+@enduml

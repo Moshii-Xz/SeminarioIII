@@ -77,6 +77,7 @@ La documentacion completa de la API esta en [API_DOCS.md](API_DOCS.md).
 
 - [API_DOCS.md](API_DOCS.md): referencia detallada de endpoints y payloads.
 - [ARCHITECTURE.md](ARCHITECTURE.md): resumen de la arquitectura, modulos y modelo de dominio.
+- [docs/database-diagram.md](docs/database-diagram.md): guia y fuente del diagrama ER.
 - [SETUP.md](SETUP.md): guia de configuracion local.
 - [DOCKER_SETUP.md](DOCKER_SETUP.md): guia de despliegue con Docker.
 
