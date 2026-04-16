@@ -1,0 +1,19 @@
+# Binaries and build output
+bin/
+tmp/
+*.exe
+main.exe
+*.out
+
+# Logs and coverage
+*.log
+coverage.out
+
+# Environment files
+.env
+.env.*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
